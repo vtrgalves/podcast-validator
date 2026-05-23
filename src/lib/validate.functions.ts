@@ -282,7 +282,7 @@ export const runValidation = createServerFn({ method: "POST" })
       .from("validations")
       .update({
         status: "done",
-        report: report as unknown as Record<string, unknown>,
+        report: JSON.parse(JSON.stringify(report)),
         score: report.overallScore,
       })
       .eq("id", row.id);
