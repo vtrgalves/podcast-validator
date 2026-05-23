@@ -1,0 +1,1 @@
+drop policy if exists "anyone can update validations" on public.validations;
