@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          validation_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          validation_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          validation_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_validation_id_fkey"
+            columns: ["validation_id"]
+            isOneToOne: false
+            referencedRelation: "validations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      validations: {
+        Row: {
+          attachments: Json
+          audience: string | null
+          created_at: string
+          description: string
+          format: string | null
+          id: string
+          niche: string | null
+          objective: string | null
+          report: Json | null
+          score: number | null
+          status: string
+        }
+        Insert: {
+          attachments?: Json
+          audience?: string | null
+          created_at?: string
+          description: string
+          format?: string | null
+          id?: string
+          niche?: string | null
+          objective?: string | null
+          report?: Json | null
+          score?: number | null
+          status?: string
+        }
+        Update: {
+          attachments?: Json
+          audience?: string | null
+          created_at?: string
+          description?: string
+          format?: string | null
+          id?: string
+          niche?: string | null
+          objective?: string | null
+          report?: Json | null
+          score?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
