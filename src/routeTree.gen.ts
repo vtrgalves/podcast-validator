@@ -9,38 +9,75 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidarRouteImport } from './routes/validar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
+import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 
+const ValidarRoute = ValidarRouteImport.update({
+  id: '/validar',
+  path: '/validar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RelatorioIdRoute = RelatorioIdRouteImport.update({
+  id: '/relatorio/$id',
+  path: '/relatorio/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessandoIdRoute = ProcessandoIdRouteImport.update({
+  id: '/processando/$id',
+  path: '/processando/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/validar': typeof ValidarRoute
+  '/processando/$id': typeof ProcessandoIdRoute
+  '/relatorio/$id': typeof RelatorioIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/validar': typeof ValidarRoute
+  '/processando/$id': typeof ProcessandoIdRoute
+  '/relatorio/$id': typeof RelatorioIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/validar': typeof ValidarRoute
+  '/processando/$id': typeof ProcessandoIdRoute
+  '/relatorio/$id': typeof RelatorioIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
+  id: '__root__' | '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ValidarRoute: typeof ValidarRoute
+  ProcessandoIdRoute: typeof ProcessandoIdRoute
+  RelatorioIdRoute: typeof RelatorioIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validar': {
+      id: '/validar'
+      path: '/validar'
+      fullPath: '/validar'
+      preLoaderRoute: typeof ValidarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +85,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/relatorio/$id': {
+      id: '/relatorio/$id'
+      path: '/relatorio/$id'
+      fullPath: '/relatorio/$id'
+      preLoaderRoute: typeof RelatorioIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processando/$id': {
+      id: '/processando/$id'
+      path: '/processando/$id'
+      fullPath: '/processando/$id'
+      preLoaderRoute: typeof ProcessandoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ValidarRoute: ValidarRoute,
+  ProcessandoIdRoute: ProcessandoIdRoute,
+  RelatorioIdRoute: RelatorioIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
