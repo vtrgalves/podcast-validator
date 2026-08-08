@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidarRouteImport } from './routes/validar'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
@@ -18,6 +19,11 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 const ValidarRoute = ValidarRouteImport.update({
   id: '/validar',
   path: '/validar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/validar': typeof ValidarRoute
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/validar': typeof ValidarRoute
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/validar': typeof ValidarRoute
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
@@ -67,15 +76,23 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/validar'
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/validar' | '/api/chat' | '/processando/$id' | '/relatorio/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/validar'
+    | '/api/chat'
+    | '/processando/$id'
+    | '/relatorio/$id'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/validar'
     | '/api/chat'
     | '/processando/$id'
@@ -84,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ValidarRoute: typeof ValidarRoute
   ApiChatRoute: typeof ApiChatRoute
   ProcessandoIdRoute: typeof ProcessandoIdRoute
@@ -97,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/validar'
       fullPath: '/validar'
       preLoaderRoute: typeof ValidarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -132,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ValidarRoute: ValidarRoute,
   ApiChatRoute: ApiChatRoute,
   ProcessandoIdRoute: ProcessandoIdRoute,
