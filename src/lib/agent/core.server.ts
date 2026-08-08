@@ -61,14 +61,14 @@ export function createGateway(env: AgentEnv) {
 }
 
 /** Executa o agente e devolve uma Response com o stream de UI messages. */
-export function runAgentStream(opts: { messages: UIMessage[]; env: AgentEnv }): Response {
+export async function runAgentStream(opts: { messages: UIMessage[]; env: AgentEnv }): Promise<Response> {
   const cfg = resolveAgentConfig(opts.env);
   const gateway = createGateway(opts.env);
 
   const result = streamText({
     model: gateway(cfg.chatModel),
     system: AGENT_SYSTEM_PROMPT,
-    messages: convertToModelMessages(opts.messages),
+    messages: await convertToModelMessages(opts.messages),
   });
 
   return result.toUIMessageStreamResponse({ originalMessages: opts.messages });
