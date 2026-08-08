@@ -11,10 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidarRouteImport } from './routes/validar'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
 
 const ValidarRoute = ValidarRouteImport.update({
   id: '/validar',
@@ -24,6 +26,10 @@ const ValidarRoute = ValidarRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -46,6 +52,12 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppPodcastAgentIndexRoute =
+  AuthenticatedAppPodcastAgentIndexRouteImport.update({
+    id: '/app/podcast-agent/',
+    path: '/app/podcast-agent/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,15 +75,18 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/app/podcast-agent': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/validar': typeof ValidarRoute
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/_authenticated/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +97,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/app/podcast-agent/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,18 +106,22 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/app/podcast-agent'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/auth'
     | '/validar'
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/_authenticated/app/podcast-agent/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ValidarRoute: typeof ValidarRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -122,6 +143,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -152,11 +180,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/podcast-agent/': {
+      id: '/_authenticated/app/podcast-agent/'
+      path: '/app/podcast-agent'
+      fullPath: '/app/podcast-agent/'
+      preLoaderRoute: typeof AuthenticatedAppPodcastAgentIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppPodcastAgentIndexRoute: typeof AuthenticatedAppPodcastAgentIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppPodcastAgentIndexRoute:
+    AuthenticatedAppPodcastAgentIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ValidarRoute: ValidarRoute,
   ApiChatRoute: ApiChatRoute,
