@@ -43,7 +43,7 @@ export const Route = createFileRoute("/relatorio/$id")({
   component: RelatorioPage,
 });
 
-const validationQO = (id: string) =>
+export const validationQO = (id: string) =>
   queryOptions({
     queryKey: ["validation", id],
     queryFn: () => getValidation({ data: { id } }),

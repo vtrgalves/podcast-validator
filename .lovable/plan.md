@@ -1,127 +1,97 @@
+# VTR Gestão IA — Podcast Strategy Agent (Oracle ONE Challenge)
 
-# VTR Gestão IA — Podcast Strategy Validator
+Evolução do produto atual: mantém identidade, posicionamento e a inteligência de validação já construída, mas move o núcleo da experiência para um **agente conversacional fundamentado em documentos (RAG)**, com Oracle Cloud Infrastructure na camada de armazenamento documental.
 
-Plataforma SaaS premium em português que valida estrategicamente ideias de podcasts (mercado, monetização, patrocínio, retenção) gerando um relatório executivo via IA. Estética inspirada em Linear/Stripe/Notion, paleta azul-escuro + roxo + verde nos CTAs.
+## O que já existe e será reaproveitado
 
-## Escopo desta entrega (MVP funcional ponta-a-ponta)
+- Landing page premium, identidade visual dark/roxo-rosa, Logo, tokens de design
+- Tabela `validations` + `leads`, bucket privado `attachments`
+- `src/lib/validate.functions.ts` — prompt de consultor sênior, schema de 9 scores e 8 blocos, tratamento de 402/429
+- `src/lib/report-types.ts`, componentes de relatório (radar, cards) — viram o **card de diagnóstico dentro do chat**
+- Rotas `/validar`, `/processando/:id`, `/relatorio/:id` continuam funcionando (nada é destruído)
 
-1. **Landing page premium** (rota `/`)
-2. **Fluxo de validação** (rota `/validar`) — formulário + upload
-3. **Tela de processamento** com mensagens dinâmicas premium
-4. **Relatório executivo** (rota `/relatorio/:id`) com 8 cards + métricas
-5. **Backend** com Lovable Cloud + Lovable AI Gateway (Gemini)
+## O que muda
 
-Login, histórico, export PDF, CRM e dashboard ficam preparados arquiteturalmente, mas não são implementados nesta primeira entrega — para manter foco no fluxo de validação que é o core.
+- CTA principal: "Validar meu Podcast" → **"Validar meu Podcast com IA"**, apontando para `/app/podcast-agent`
+- Nova experiência principal: chat com sidebar, threads e base de conhecimento
+- O validador vira um **fluxo conversacional** dentro do chat (uma pergunta por vez), terminando no card de diagnóstico
 
----
+## Arquitetura proposta
 
-## 1. Landing page (`src/routes/index.tsx`)
+```text
+Usuário
+  ↓
+Lovable Frontend (TanStack Start, React 19)
+  ↓
+Backend (server functions + rota de streaming /api/chat)
+  ↓         ↘
+Lovable Cloud (Postgres + pgvector)   Oracle Cloud Infrastructure
+  threads, mensagens, chunks,          Object Storage
+  embeddings, metadados                bucket vtr-podcast-knowledge
+  ↓
+Busca semântica (top-k) → contexto → LLM → resposta com fontes
+```
 
-Seções, na ordem:
+Decisões confirmadas: **múltiplas conversas (threads)** com **histórico em banco de dados**, e **OCI Object Storage** como serviço Oracle obrigatório do Challenge.
 
-- **Nav** minimalista — logo VTR Gestão IA (uso da imagem enviada) + links âncora + CTA "Validar meu Podcast"
-- **Hero** — headline "Valide seu podcast antes de investir meses produzindo." + subheadline + 2 CTAs (primário verde / secundário ghost). À direita: mockup do dashboard executivo (componente React real, não imagem) mostrando score, radar, e cards de monetização
-- **Problemas do mercado** — 6 cards modernos com ícones (lucide-react) e as dores exatas do brief
-- **Como funciona** — 3 etapas numeradas com visual de pipeline
-- **Diferencial** — bloco destacando que valida modelo de mídia / negócio / patrocinabilidade, não só conteúdo
-- **Preview do relatório** — mini visual do output (radar + scorecards + recomendação GO/AJUSTES/NO-GO)
-- **CTA final** + **Footer** executivo
+## Serviços necessários
 
-Microanimações com `framer-motion` (já comum no template — confirmo e instalo se faltar). Sem hype de IA, tom executivo.
+| Serviço | Uso | Custo |
+|---|---|---|
+| Lovable Cloud (Postgres/pgvector/Auth/Storage) | threads, mensagens, chunks, vetores | incluso |
+| Lovable AI Gateway | chat (`openai/gpt-5.6-sol`) + embeddings (`google/gemini-embedding-2`) | por requisição, com free tier mensal |
+| OCI Object Storage | documentos originais da base | centavos/mês nesse volume; há Always Free tier |
+| Auth (email + Google) | necessária porque o histórico é por usuário | incluso |
 
-## 2. Fluxo de validação (`src/routes/validar.tsx`)
+## Tabelas necessárias
 
-- Textarea principal "Descreva seu podcast" (máx 700 chars com contador)
-- Campos opcionais: Nicho (input), Público-alvo (input), Objetivo (select), Formato (select)
-- Upload opcional (PDF/DOCX/PPTX/TXT) — guardado em Lovable Cloud Storage, texto extraído server-side quando possível (PDF/TXT no MVP; DOCX/PPTX = enviar nome + nota de contexto)
-- Botão "Gerar diagnóstico estratégico" → cria registro em DB e navega para `/processando/:id`
+- `profiles` — id do usuário, nome, avatar
+- `threads` — id, user_id, título, updated_at
+- `messages` — id (uuid gerado pelo banco), thread_id, role, parts jsonb, sources jsonb, created_at
+- `documents` — id, título, categoria (estrategia/monetizacao/comercial/audiencia/producao/parcerias/gestao), formato, oci_object_name, oci_url, status (uploaded/processing/indexed/failed), páginas, created_at
+- `document_chunks` — id, document_id, chunk_index, conteúdo, página/aba, `embedding vector(3072)` + índice HNSW via halfvec
+- `diagnostics` — id, thread_id, user_id, respostas coletadas, report jsonb, score (reaproveita o schema atual)
+- `leads`, `validations` — mantidas
 
-## 3. Tela de processamento (`/processando/:id`)
+RLS: tudo escopado a `auth.uid()`; `documents`/`document_chunks` com leitura para `authenticated` e escrita apenas admin (tabela `user_roles` + `has_role`).
 
-- Animação premium: gradient orb + barra de progresso + partículas leves
-- Rotaciona as mensagens dinâmicas do brief ("Analisando diferenciação do nicho…" etc.)
-- Em paralelo, chama o server function que invoca a IA. Quando retornar (5–15s), navega para `/relatorio/:id`
+## Estratégia RAG
 
-## 4. Relatório executivo (`/relatorio/:id`)
+1. Upload do documento → gravado no **OCI Object Storage** em `/categoria/arquivo`
+2. Extração de texto por formato: PDF, DOCX, XLSX, PPTX, CSV, JSON, MD, HTML (bibliotecas puro-JS compatíveis com o runtime edge; formatos sem parser viável entram como "não indexado" e ficam visíveis na UI)
+3. Normalização + chunking (~1.000 caracteres, 15% de overlap), preservando página/aba na metadata
+4. Embeddings via `google/gemini-embedding-2` (3072 dims, lotes ≤100)
+5. Busca: embedding da pergunta → `match_document_chunks` (cosine, top-k 8) → filtro por limiar de similaridade
+6. Prompt: contexto numerado + regra anti-alucinação; sem contexto suficiente, o agente responde a frase exata exigida e oferece análise complementar rotulada como recomendação da IA
+7. Resposta cita **Fontes consultadas** com documento + página/aba, clicável para o item na Base de Conhecimento
 
-Header: nome sugerido do podcast + score geral + badge (Alto Potencial / Médio / Alto Risco — cor verde/âmbar/vermelho).
+## Integração OCI (modular e segura)
 
-Grid de 8 cards conforme brief:
-1. Estrutura do Podcast
-2. Potencial de Mercado
-3. Potencial de Monetização (com lista de marcas/categorias sugeridas)
-4. Retenção e Audiência
-5. Posicionamento Estratégico
-6. Riscos
-7. Roadmap Estratégico (checklist)
-8. Recomendação Final (GO / GO COM AJUSTES / NO-GO + justificativa)
+- Adaptador `src/lib/storage/` com interface única e duas implementações: `oci` e `supabase` (fallback), escolhida por env var
+- Autenticação por API Signing Key (RSA + assinatura HTTP), 100% server-side
+- Secrets: `OCI_TENANCY_OCID`, `OCI_USER_OCID`, `OCI_FINGERPRINT`, `OCI_PRIVATE_KEY`, `OCI_REGION`, `OCI_NAMESPACE`, `OCI_BUCKET` — solicitados pelo formulário seguro, nunca no frontend nem no repositório
+- URLs de leitura via Pre-Authenticated Request de curta duração geradas no backend
 
-Bloco "Métricas Executivas":
-- Radar chart (recharts) com os 9 scores do brief
-- Gauges/progress bars complementares
-- Scorecards numéricos premium
+## Riscos técnicos
 
-CTA no fim: "Falar com a VTR Gestão" (lead capture — abre dialog com nome/email/whatsapp, grava em tabela `leads`).
+- Parsers de documento no runtime edge: alguns pacotes são Node-only. Mitigação: parsers puro-JS/WASM e processamento em fila por documento
+- Assinatura OCI feita à mão (não há SDK edge-friendly): mitigada pelo adaptador isolado com testes e fallback
+- Documentos grandes: chunking incremental com status por documento na UI, evitando timeouts
+- Qualidade do RAG depende do acervo: com base vazia, o agente admite a lacuna em vez de inventar
 
-## 5. Identidade visual (`src/styles.css`)
+## Plano em 10 fases
 
-Tokens semânticos em oklch:
-- `--background` azul-escuro profundo (~oklch(0.18 0.04 265))
-- `--foreground` branco-off
-- `--primary` roxo gradient anchor (~oklch(0.55 0.22 300))
-- `--accent` verde CTA (~oklch(0.72 0.18 155))
-- `--card` azul-escuro elevado com sombra suave
-- Gradientes: `--gradient-brand` (roxo→magenta, como o logo), `--gradient-hero`
-- Sombras suaves customizadas, radius generoso
-- Tipografia: Inter para corpo + display font premium (ex: Space Grotesk) — importadas via `<link>` no `__root.tsx`
+| Fase | Entrega |
+|---|---|
+| 1 | Auth + `threads`/`messages` + UX do chat em `/app/podcast-agent` (AI Elements, sidebar, boas-vindas com 6 sugestões, streaming) e CTA atualizado |
+| 2 | Fluxo conversacional do validador (uma pergunta por vez) via tool calling |
+| 3 | `/app/base-conhecimento`: listagem, upload, categorias, status |
+| 4 | Pipeline de extração e chunking por formato |
+| 5 | Embeddings, pgvector, busca semântica, citação de fontes, regra anti-alucinação |
+| 6 | Adaptador OCI Object Storage + migração dos documentos para o bucket |
+| 7 | Card de Diagnóstico no chat (score 0–100, 8 dimensões, GO / GO COM AJUSTES / VALIDAR MAIS / NO-GO) |
+| 8 | "Explorar Monetização" e "Mapa de Oportunidades" + apoio a negociação |
+| 9 | README completo, `.env.example`, diagrama de arquitetura, screenshots |
+| 10 | Deploy, URL pública, documentação final do Challenge |
 
-Componentes shadcn já disponíveis serão usados (Button, Card, Badge, Dialog, Select, Textarea, Progress, Tabs).
-
-## 6. Backend (Lovable Cloud + Lovable AI)
-
-**Habilitar Lovable Cloud** + **Lovable AI Gateway**.
-
-Tabelas (migration):
-- `validations` — id, created_at, input_description, niche, audience, objective, format, attachments (jsonb), status, report (jsonb), score int
-- `leads` — id, created_at, validation_id, name, email, whatsapp, message
-- Storage bucket `attachments` (privado)
-
-RLS: permissivas no MVP (sem auth ainda) — INSERT público, SELECT por id. Documentar que precisa endurecer ao adicionar login.
-
-Server function (`src/lib/validate.functions.ts`):
-- `createValidation({...})` → grava no DB e retorna id
-- `runValidation(id)` → busca registro, monta prompt estratégico em português (system: "advisor de creator economy, estrategista de mídia premium, tom executivo"), chama Lovable AI Gateway (`google/gemini-3-flash-preview`) com **tool calling** para retornar JSON estruturado conforme schema do relatório (8 cards + 9 scores + recomendação + nome sugerido). Salva em `report` e atualiza `status`.
-- `getValidation(id)` → leitura para o relatório
-
-Tratamento explícito de 402/429 com mensagem amigável.
-
-## 7. Assets
-
-- `src/assets/logo-vtr.png` ← copiar de `user-uploads://VTR_GESTAO.png`
-- `src/assets/logo-mark.png` ← copiar de `user-uploads://play.png` (favicon + marca compacta)
-
-## 8. SEO
-
-`head()` em cada rota com título/description em PT-BR, og:title/description. Title da home: "VTR Gestão IA — Valide seu podcast antes de investir".
-
----
-
-## Detalhes técnicos
-
-- Stack: TanStack Start (já no template) + React 19 + Tailwind v4 + shadcn + recharts + framer-motion
-- Rotas em `src/routes/`: `index.tsx`, `validar.tsx`, `processando.$id.tsx`, `relatorio.$id.tsx`
-- Server functions em `src/lib/*.functions.ts`
-- Cliente Supabase via `@/integrations/supabase/client` (auto-gerado pelo Lovable Cloud)
-- IA: `https://ai.gateway.lovable.dev/v1/chat/completions` via `LOVABLE_API_KEY` (server-side only), com `tool_choice` forçando o schema do relatório
-- Upload: SDK supabase-js do client-side direto no bucket; nome do arquivo gravado em `attachments` jsonb
-
-## Fora de escopo nesta entrega (preparado, não construído)
-
-- Autenticação / login
-- Histórico de validações por usuário
-- Export PDF
-- Dashboard analytics
-- CRM completo (apenas tabela `leads` simples)
-- Parser real de DOCX/PPTX (PDF/TXT funcionam; outros formatos: apenas referência por nome)
-
-Pronto para implementar quando você aprovar.
+Entrego fase a fase, validando com você antes de avançar. Aprovando, começo pela Fase 1.
