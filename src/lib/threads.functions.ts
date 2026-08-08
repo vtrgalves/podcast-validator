@@ -99,8 +99,8 @@ export const saveMessage = createServerFn({ method: "POST" })
       thread_id: data.threadId,
       user_id: context.userId,
       role: data.role,
-      parts: data.parts,
-      sources: data.sources ?? [],
+      parts: JSON.parse(JSON.stringify(data.parts)),
+      sources: JSON.parse(JSON.stringify(data.sources ?? [])),
       ai_message_id: data.aiMessageId ?? null,
     });
     if (error) throw new Error(error.message);
