@@ -66,10 +66,10 @@ function Index() {
             <a href="#diferencial" className="hover:text-foreground transition">Diferencial</a>
           </nav>
           <Link
-            to="/validar"
+            to="/app/podcast-agent"
             className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-success-foreground hover:opacity-90 transition shadow-soft"
           >
-            Validar meu Podcast <ArrowRight className="h-4 w-4" />
+            Validar meu Podcast com IA <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </header>
@@ -111,10 +111,10 @@ function Index() {
               className="mt-8 flex flex-wrap gap-3"
             >
               <Link
-                to="/validar"
+                to="/app/podcast-agent"
                 className="inline-flex items-center gap-2 rounded-lg bg-success px-6 py-3 text-sm font-semibold text-success-foreground hover:opacity-90 transition shadow-elevated"
               >
-                Validar meu Podcast <ArrowRight className="h-4 w-4" />
+                Validar meu Podcast com IA <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#diferencial"
@@ -242,10 +242,10 @@ function Index() {
             Diagnóstico executivo em menos de 15 segundos. Sem cartão. Sem cadastro.
           </p>
           <Link
-            to="/validar"
+            to="/app/podcast-agent"
             className="mt-8 inline-flex items-center gap-2 rounded-lg bg-success px-8 py-4 text-base font-semibold text-success-foreground hover:opacity-90 transition shadow-elevated"
           >
-            Validar meu Podcast agora <ArrowRight className="h-5 w-5" />
+            Validar meu Podcast com IA <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </section>
