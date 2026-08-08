@@ -13,6 +13,7 @@ import { Route as ValidarRouteImport } from './routes/validar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const ValidarRoute = ValidarRouteImport.update({
   id: '/validar',
@@ -34,16 +35,23 @@ const ProcessandoIdRoute = ProcessandoIdRouteImport.update({
   path: '/processando/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/validar': typeof ValidarRoute
+  '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/validar': typeof ValidarRoute
+  '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
 }
@@ -51,20 +59,33 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/validar': typeof ValidarRoute
+  '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
+  fullPaths:
+    | '/'
+    | '/validar'
+    | '/api/chat'
+    | '/processando/$id'
+    | '/relatorio/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
-  id: '__root__' | '/' | '/validar' | '/processando/$id' | '/relatorio/$id'
+  to: '/' | '/validar' | '/api/chat' | '/processando/$id' | '/relatorio/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/validar'
+    | '/api/chat'
+    | '/processando/$id'
+    | '/relatorio/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ValidarRoute: typeof ValidarRoute
+  ApiChatRoute: typeof ApiChatRoute
   ProcessandoIdRoute: typeof ProcessandoIdRoute
   RelatorioIdRoute: typeof RelatorioIdRoute
 }
@@ -99,25 +120,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProcessandoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ValidarRoute: ValidarRoute,
+  ApiChatRoute: ApiChatRoute,
   ProcessandoIdRoute: ProcessandoIdRoute,
   RelatorioIdRoute: RelatorioIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
