@@ -57,7 +57,7 @@ export const Route = createFileRoute("/api/public/index-knowledge")({
         const supabase = adminClient();
         const report: Array<Record<string, unknown>> = [];
 
-        for (const doc of body.documents ?? []) {
+        for (const doc of documents) {
           const { data: existing } = await supabase
             .from("documents")
             .select("id")
