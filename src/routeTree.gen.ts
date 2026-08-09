@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
 import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
 import { Route as AuthenticatedAppPodcastAgentThreadIdRouteImport } from './routes/_authenticated/app.podcast-agent.$threadId'
 
@@ -53,6 +54,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
+  id: '/api/public/index-knowledge',
+  path: '/api/public/index-knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppPodcastAgentIndexRoute =
   AuthenticatedAppPodcastAgentIndexRouteImport.update({
     id: '/app/podcast-agent/',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/app/podcast-agent': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/_authenticated/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/_authenticated/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
 }
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/api/public/index-knowledge'
     | '/app/podcast-agent/$threadId'
     | '/app/podcast-agent/'
   fileRoutesByTo: FileRoutesByTo
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/api/public/index-knowledge'
     | '/app/podcast-agent/$threadId'
     | '/app/podcast-agent'
   id:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/api/public/index-knowledge'
     | '/_authenticated/app/podcast-agent/$threadId'
     | '/_authenticated/app/podcast-agent/'
   fileRoutesById: FileRoutesById
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ProcessandoIdRoute: typeof ProcessandoIdRoute
   RelatorioIdRoute: typeof RelatorioIdRoute
+  ApiPublicIndexKnowledgeRoute: typeof ApiPublicIndexKnowledgeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/index-knowledge': {
+      id: '/api/public/index-knowledge'
+      path: '/api/public/index-knowledge'
+      fullPath: '/api/public/index-knowledge'
+      preLoaderRoute: typeof ApiPublicIndexKnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/podcast-agent/': {
       id: '/_authenticated/app/podcast-agent/'
       path: '/app/podcast-agent'
@@ -233,17 +253,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ProcessandoIdRoute: ProcessandoIdRoute,
   RelatorioIdRoute: RelatorioIdRoute,
+  ApiPublicIndexKnowledgeRoute: ApiPublicIndexKnowledgeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
