@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      document_chunks: {
+        Row: {
+          chunk_index: number
+          content: string
+          created_at: string
+          document_id: string
+          embedding: string | null
+          id: string
+          page_end: number | null
+          page_number: number | null
+          token_estimate: number | null
+        }
+        Insert: {
+          chunk_index: number
+          content: string
+          created_at?: string
+          document_id: string
+          embedding?: string | null
+          id?: string
+          page_end?: number | null
+          page_number?: number | null
+          token_estimate?: number | null
+        }
+        Update: {
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          document_id?: string
+          embedding?: string | null
+          id?: string
+          page_end?: number | null
+          page_number?: number | null
+          token_estimate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          author: string | null
+          chunk_count: number
+          created_at: string
+          doc_type: string
+          file_name: string
+          id: string
+          ocr_used: boolean
+          page_count: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          chunk_count?: number
+          created_at?: string
+          doc_type?: string
+          file_name: string
+          id?: string
+          ocr_used?: boolean
+          page_count?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          chunk_count?: number
+          created_at?: string
+          doc_type?: string
+          file_name?: string
+          id?: string
+          ocr_used?: boolean
+          page_count?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -212,6 +298,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_document_chunks: {
+        Args: {
+          match_count?: number
+          query_embedding: string
+          similarity_threshold?: number
+        }
+        Returns: {
+          chunk_index: number
+          content: string
+          document_id: string
+          document_title: string
+          id: string
+          page_end: number
+          page_number: number
+          similarity: number
+        }[]
       }
     }
     Enums: {
