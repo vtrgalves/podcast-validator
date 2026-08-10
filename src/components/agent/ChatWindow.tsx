@@ -105,9 +105,11 @@ export function ChatWindow({
           role: "assistant",
           aiMessageId: message.id,
           parts: message.parts as unknown as Array<Record<string, unknown>>,
+          sources: sourcesOf(message) as unknown as Array<Record<string, unknown>>,
         },
       }).then(() => queryClient.invalidateQueries({ queryKey: ["threads"] }));
     },
+
     onError: (error) => {
       toast.error(error.message || "O agente não conseguiu responder agora.");
     },
