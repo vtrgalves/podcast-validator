@@ -153,6 +153,30 @@ export function toSources(chunks: RetrievedChunk[]): AgentSource[] {
   }
   return out;
 }
+/**
+ * Filtra as fontes recuperadas para as que a resposta realmente utilizou.
+ * A lista continua sendo construída programaticamente a partir dos chunks —
+ * o texto do modelo só é usado como filtro, nunca como origem das fontes.
+ */
+export function usedSources(sources: AgentSource[], answer: string): AgentSource[] {
+  const text = answer.normalize("NFC");
+  if (text.includes("Não encontrei informação suficiente")) return [];
+
+  const idx = text.toLowerCase().lastIndexOf("fontes consultadas");
+  if (idx < 0) return [];
+  const section = text.slice(idx);
+  const cited = new Set((section.match(/\d+/g) ?? []).map(Number));
+
+  const filtered = sources.filter((s) => {
+    const titleWord = s.title.split(/\s+/).slice(0, 3).join(" ").toLowerCase();
+    const titleCited = section.toLowerCase().includes(titleWord.slice(0, 12));
+    const pageCited = s.page == null || cited.has(s.page) || (s.pageEnd ? cited.has(s.pageEnd) : false);
+    return titleCited && pageCited;
+  });
+
+  return filtered.length ? filtered : sources;
+}
+
 
 /** Executa o agente (RAG + LLM) e devolve uma Response com o stream de UI messages. */
 export async function runAgentStream(opts: {
