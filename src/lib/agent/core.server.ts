@@ -7,6 +7,7 @@
  */
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { adminClient, retrieveChunks, type RetrievedChunk } from "./retrieval.server";
 
 export type AgentEnv = {
   apiKey: string;
@@ -15,32 +16,58 @@ export type AgentEnv = {
   embeddingModel?: string;
 };
 
+export type AgentSource = {
+  documentId: string;
+  title: string;
+  page: number | null;
+  pageEnd: number | null;
+  similarity: number;
+};
+
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-sol";
 export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-2";
 export const DEFAULT_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 
-export const AGENT_SYSTEM_PROMPT = `Você é o **Podcast Strategy Agent** da VTR Gestão — um advisor sênior de Creator Economy, mídia digital e monetização de podcasts, com 15+ anos de experiência consultiva para creators, estúdios, agências e patrocinadores no Brasil.
+/** Janela curta de histórico (economia de tokens). Memória ≠ fonte. */
+export const HISTORY_WINDOW = 8;
 
-## Como você pensa
-Você raciocina simultaneamente como: mídia, negócio, patrocinador, audiência e creator. Você não é um chatbot genérico — é um consultor estratégico premium.
+export const AGENT_SYSTEM_PROMPT = `Você é o **VTR Gestão IA — Podcast Strategy Agent**, especialista em estruturação de Podcasts como projetos: gestão híbrida, planejamento, pré-produção, produção, pós-produção, Kanban, PDCA, riscos, stakeholders, custos, recursos, distribuição e fomento aplicado à produção audiovisual.
 
 ## Tom de voz
-- Executivo, direto, estratégico, em português brasileiro.
-- Sem hype de IA, sem promessas irreais, sem linguagem infantilizada.
-- Respostas objetivas e acionáveis. Use listas e destaques quando ajudar a decisão.
+Executivo, direto, estratégico, em português brasileiro. Sem hype de IA. Respostas objetivas e acionáveis.
 
-## Regras de fundamentação (anti-alucinação)
-- Quando houver trechos da Base de Conhecimento no contexto, baseie a resposta neles e cite as fontes ao final, em uma seção "**Fontes consultadas**" com documento e página/aba.
-- Quando NÃO houver base documental suficiente para a pergunta, diga exatamente: "Não encontrei essa informação na base de conhecimento disponível." E então, se fizer sentido, ofereça uma análise complementar rotulada explicitamente como "**Recomendação estratégica da IA (fora da base documental)**".
-- Nunca invente números, contratos, valores de CPM, nomes de patrocinadores reais como se fossem fatos documentados. Estimativas devem ser rotuladas como estimativas.
+## Prioridade de resposta
+1. Primeiro use a **Base de Conhecimento** (trechos recuperados no bloco CONTEXTO DOCUMENTAL).
+2. Depois interprete e conecte esses trechos.
+3. Nunca invente conteúdo documental.
+4. Nunca invente página nem número de página.
+5. Nunca afirme que algo consta na pesquisa se nenhum trecho recuperado sustentar a afirmação.
 
-## Capacidades
-- Diagnóstico e validação estratégica de ideias de podcast (mercado, diferenciação, retenção, viabilidade comercial).
-- Estratégias de monetização: patrocínio, branded content, afiliados, produtos digitais, comunidade paga, eventos.
-- Apoio comercial: como estruturar mídia kit, precificação, argumentos de venda e negociação com marcas.
-- Posicionamento, formato, roteiro, cadência e crescimento de audiência.
+## MEMÓRIA NÃO É FONTE
+O histórico da conversa serve apenas para continuidade. Ele nunca é evidência, nunca vira citação e nunca substitui os documentos. Somente os trechos do bloco CONTEXTO DOCUMENTAL desta mensagem podem gerar citação.
 
-Sempre feche respostas estratégicas com um próximo passo prático.`;
+## Formatos de resposta
+**Contexto suficiente:** responda de forma prática e objetiva e finalize com:
+
+**Fontes consultadas**
+- Documento — página X
+
+Cite somente os documentos/páginas presentes no CONTEXTO DOCUMENTAL e efetivamente usados.
+
+**Contexto parcial:** separe em duas seções rotuladas:
+
+**BASE DE CONHECIMENTO** — somente o que os trechos sustentam (com as fontes).
+
+**ANÁLISE COMPLEMENTAR DA IA** — orientações gerais que não vieram da pesquisa, claramente rotuladas.
+
+**Sem contexto suficiente:** responda exatamente:
+"Não encontrei informação suficiente na Base de Conhecimento VTR Gestão para responder essa pergunta com segurança."
+E em seguida:
+"Posso fazer uma análise complementar baseada em boas práticas gerais, separada das informações da pesquisa."
+Nunca invente números, valores de CPM, contratos ou nomes de patrocinadores como fatos documentados.
+
+## Base de conhecimento
+Se perguntarem qual é a sua Base de Conhecimento, liste exatamente os documentos do bloco BASE DE CONHECIMENTO DISPONÍVEL abaixo.`;
 
 export function resolveAgentConfig(env: AgentEnv) {
   return {
@@ -60,16 +87,151 @@ export function createGateway(env: AgentEnv) {
   });
 }
 
-/** Executa o agente e devolve uma Response com o stream de UI messages. */
-export async function runAgentStream(opts: { messages: UIMessage[]; env: AgentEnv }): Promise<Response> {
+function lastUserText(messages: UIMessage[]) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i]!;
+    if (m.role !== "user") continue;
+    return m.parts
+      .map((p) => (p.type === "text" ? p.text : ""))
+      .join(" ")
+      .trim();
+  }
+  return "";
+}
+
+function pageLabel(c: { page_number: number | null; page_end: number | null }) {
+  if (c.page_number == null) return "página não informada";
+  if (c.page_end && c.page_end !== c.page_number) return `páginas ${c.page_number}-${c.page_end}`;
+  return `página ${c.page_number}`;
+}
+
+/** Lista dinâmica dos documentos indexados (nunca hardcoded no prompt). */
+export async function listIndexedDocuments() {
+  const supabase = adminClient();
+  const { data, error } = await supabase
+    .from("documents")
+    .select("id, title, author, page_count, chunk_count, status")
+    .eq("status", "indexed")
+    .order("title");
+  if (error) return [];
+  return (data ?? []) as Array<{
+    id: string;
+    title: string;
+    author: string | null;
+    page_count: number | null;
+    chunk_count: number;
+  }>;
+}
+
+export function buildContextBlock(chunks: RetrievedChunk[]) {
+  if (chunks.length === 0) {
+    return "CONTEXTO DOCUMENTAL: nenhum trecho da Base de Conhecimento atingiu o limiar mínimo de relevância para esta pergunta.";
+  }
+  const body = chunks
+    .map(
+      (c, i) =>
+        `[${i + 1}] ${c.document_title} — ${pageLabel(c)} (similaridade ${c.similarity.toFixed(3)})\n${c.content}`,
+    )
+    .join("\n\n---\n\n");
+  return `CONTEXTO DOCUMENTAL (única fonte citável):\n\n${body}`;
+}
+
+export function toSources(chunks: RetrievedChunk[]): AgentSource[] {
+  const seen = new Set<string>();
+  const out: AgentSource[] = [];
+  for (const c of chunks) {
+    const key = `${c.document_id}:${c.page_number}:${c.page_end}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      documentId: c.document_id,
+      title: c.document_title,
+      page: c.page_number,
+      pageEnd: c.page_end,
+      similarity: Number(c.similarity.toFixed(3)),
+    });
+  }
+  return out;
+}
+/**
+ * Filtra as fontes recuperadas para as que a resposta realmente utilizou.
+ * A lista continua sendo construída programaticamente a partir dos chunks —
+ * o texto do modelo só é usado como filtro, nunca como origem das fontes.
+ */
+export function usedSources(sources: AgentSource[], answer: string): AgentSource[] {
+  const text = answer.normalize("NFC");
+  if (text.includes("Não encontrei informação suficiente")) return [];
+
+  const idx = text.toLowerCase().lastIndexOf("fontes consultadas");
+  if (idx < 0) return [];
+  const section = text.slice(idx);
+  const cited = new Set((section.match(/\d+/g) ?? []).map(Number));
+
+  const filtered = sources.filter((s) => {
+    const titleWord = s.title.split(/\s+/).slice(0, 3).join(" ").toLowerCase();
+    const titleCited = section.toLowerCase().includes(titleWord.slice(0, 12));
+    const pageCited = s.page == null || cited.has(s.page) || (s.pageEnd ? cited.has(s.pageEnd) : false);
+    return titleCited && pageCited;
+  });
+
+  return filtered.length ? filtered : sources;
+}
+
+
+/** Executa o agente (RAG + LLM) e devolve uma Response com o stream de UI messages. */
+export async function runAgentStream(opts: {
+  messages: UIMessage[];
+  env: AgentEnv;
+}): Promise<Response> {
   const cfg = resolveAgentConfig(opts.env);
   const gateway = createGateway(opts.env);
 
+  const question = lastUserText(opts.messages);
+
+  const [chunks, docs] = await Promise.all([
+    question
+      ? retrieveChunks(question, {
+          apiKey: cfg.apiKey,
+          gatewayUrl: cfg.gatewayUrl,
+          embeddingModel: cfg.embeddingModel,
+        }).catch((e) => {
+          console.error("rag error", e);
+          return [] as RetrievedChunk[];
+        })
+      : Promise.resolve([] as RetrievedChunk[]),
+    listIndexedDocuments().catch(() => []),
+  ]);
+
+  const kbBlock = docs.length
+    ? `BASE DE CONHECIMENTO DISPONÍVEL (documentos indexados):\n${docs
+        .map(
+          (d) =>
+            `- ${d.title}${d.author ? ` — ${d.author}` : ""}${d.page_count ? ` (${d.page_count} páginas)` : ""}`,
+        )
+        .join("\n")}`
+    : "BASE DE CONHECIMENTO DISPONÍVEL: nenhum documento indexado no momento.";
+
+  const sources = toSources(chunks);
+
+  // Janela curta de histórico: economia de tokens, memória apenas para continuidade.
+  const windowed = opts.messages.slice(-HISTORY_WINDOW);
+
+  let answer = "";
+
   const result = streamText({
     model: gateway(cfg.chatModel),
-    system: AGENT_SYSTEM_PROMPT,
-    messages: await convertToModelMessages(opts.messages),
+    system: `${AGENT_SYSTEM_PROMPT}\n\n${kbBlock}\n\n${buildContextBlock(chunks)}`,
+    messages: await convertToModelMessages(windowed),
+    providerOptions: { "lovable-ai-gateway": { reasoningEffort: "none" } },
+    onChunk: ({ chunk }) => {
+      if (chunk.type === "text-delta") answer += chunk.text;
+    },
   });
 
-  return result.toUIMessageStreamResponse({ originalMessages: opts.messages });
+  return result.toUIMessageStreamResponse({
+    originalMessages: opts.messages,
+    messageMetadata: ({ part }) =>
+      part.type === "finish" ? { sources: usedSources(sources, answer) } : undefined,
+  });
+
 }

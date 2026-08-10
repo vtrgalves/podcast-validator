@@ -20,12 +20,51 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import { saveMessage, renameThread } from "@/lib/threads.functions";
 import { AgentWelcome } from "./AgentWelcome";
 
+type AgentSource = {
+  documentId: string;
+  title: string;
+  page: number | null;
+  pageEnd?: number | null;
+  similarity: number;
+};
+
 function textOf(message: UIMessage) {
   return message.parts
     .map((p) => (p.type === "text" ? p.text : ""))
     .join("")
     .trim();
 }
+
+function sourcesOf(message: UIMessage): AgentSource[] {
+  const meta = message.metadata as { sources?: AgentSource[] } | undefined;
+  return Array.isArray(meta?.sources) ? meta.sources : [];
+}
+
+function pageLabel(s: AgentSource) {
+  if (s.page == null) return "página não informada";
+  if (s.pageEnd && s.pageEnd !== s.page) return `páginas ${s.page}-${s.pageEnd}`;
+  return `página ${s.page}`;
+}
+
+function SourceList({ sources }: { sources: AgentSource[] }) {
+  if (sources.length === 0) return null;
+  return (
+    <div className="mt-3 rounded-lg border border-border/60 bg-surface/50 p-3">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        Fontes consultadas
+      </p>
+      <ul className="mt-2 space-y-1">
+        {sources.map((s, i) => (
+          <li key={`${s.documentId}-${i}`} className="text-xs text-muted-foreground">
+            <span className="text-foreground">{s.title}</span> — {pageLabel(s)}
+            <span className="ml-1 opacity-60">({s.similarity.toFixed(2)})</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 
 export function ChatWindow({
   threadId,
@@ -66,9 +105,11 @@ export function ChatWindow({
           role: "assistant",
           aiMessageId: message.id,
           parts: message.parts as unknown as Array<Record<string, unknown>>,
+          sources: sourcesOf(message) as unknown as Array<Record<string, unknown>>,
         },
       }).then(() => queryClient.invalidateQueries({ queryKey: ["threads"] }));
     },
+
     onError: (error) => {
       toast.error(error.message || "O agente não conseguiu responder agora.");
     },
@@ -114,7 +155,10 @@ export function ChatWindow({
               <Message from={message.role} key={message.id}>
                 <MessageContent>
                   {message.role === "assistant" ? (
-                    <MessageResponse>{textOf(message)}</MessageResponse>
+                    <>
+                      <MessageResponse>{textOf(message)}</MessageResponse>
+                      <SourceList sources={sourcesOf(message)} />
+                    </>
                   ) : (
                     <span className="whitespace-pre-wrap">{textOf(message)}</span>
                   )}
@@ -122,6 +166,7 @@ export function ChatWindow({
               </Message>
             ))
           )}
+
           {status === "submitted" && (
             <div className="px-1 py-2">
               <Shimmer>Analisando estrategicamente…</Shimmer>

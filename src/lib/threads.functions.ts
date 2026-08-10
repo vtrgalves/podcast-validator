@@ -8,11 +8,21 @@ export type ThreadRow = {
   updated_at: string;
 };
 
+export type StoredSource = {
+  documentId: string;
+  title: string;
+  page: number | null;
+  pageEnd?: number | null;
+  similarity: number;
+};
+
 export type StoredMessage = {
   id: string;
   role: "user" | "assistant" | "system";
   parts: Array<{ type: string; text?: string }>;
+  metadata?: { sources?: StoredSource[] };
 };
+
 
 export const listThreads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -70,7 +80,7 @@ export const getThreadMessages = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { data: rows, error } = await context.supabase
       .from("messages")
-      .select("id, role, parts, ai_message_id, created_at")
+      .select("id, role, parts, sources, ai_message_id, created_at")
       .eq("thread_id", data.threadId)
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
@@ -78,8 +88,10 @@ export const getThreadMessages = createServerFn({ method: "GET" })
       id: (r.ai_message_id as string | null) ?? (r.id as string),
       role: r.role as StoredMessage["role"],
       parts: (r.parts ?? []) as StoredMessage["parts"],
+      metadata: { sources: (r.sources ?? []) as StoredSource[] },
     })) as StoredMessage[];
   });
+
 
 export const saveMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
