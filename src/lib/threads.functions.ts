@@ -8,11 +8,21 @@ export type ThreadRow = {
   updated_at: string;
 };
 
+export type StoredSource = {
+  documentId: string;
+  title: string;
+  page: number | null;
+  pageEnd?: number | null;
+  similarity: number;
+};
+
 export type StoredMessage = {
   id: string;
   role: "user" | "assistant" | "system";
   parts: Array<{ type: string; text?: string }>;
+  metadata?: { sources?: StoredSource[] };
 };
+
 
 export const listThreads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
