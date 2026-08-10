@@ -155,7 +155,10 @@ export function ChatWindow({
               <Message from={message.role} key={message.id}>
                 <MessageContent>
                   {message.role === "assistant" ? (
-                    <MessageResponse>{textOf(message)}</MessageResponse>
+                    <>
+                      <MessageResponse>{textOf(message)}</MessageResponse>
+                      <SourceList sources={sourcesOf(message)} />
+                    </>
                   ) : (
                     <span className="whitespace-pre-wrap">{textOf(message)}</span>
                   )}
@@ -163,6 +166,7 @@ export function ChatWindow({
               </Message>
             ))
           )}
+
           {status === "submitted" && (
             <div className="px-1 py-2">
               <Shimmer>Analisando estrategicamente…</Shimmer>
