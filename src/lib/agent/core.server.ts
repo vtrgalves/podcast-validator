@@ -192,15 +192,22 @@ export async function runAgentStream(opts: {
   // Janela curta de histórico: economia de tokens, memória apenas para continuidade.
   const windowed = opts.messages.slice(-HISTORY_WINDOW);
 
+  let answer = "";
+
   const result = streamText({
     model: gateway(cfg.chatModel),
     system: `${AGENT_SYSTEM_PROMPT}\n\n${kbBlock}\n\n${buildContextBlock(chunks)}`,
     messages: await convertToModelMessages(windowed),
     providerOptions: { "lovable-ai-gateway": { reasoningEffort: "none" } },
+    onChunk: ({ chunk }) => {
+      if (chunk.type === "text-delta") answer += chunk.text;
+    },
   });
 
   return result.toUIMessageStreamResponse({
     originalMessages: opts.messages,
-    messageMetadata: ({ part }) => (part.type === "finish" ? { sources } : undefined),
+    messageMetadata: ({ part }) =>
+      part.type === "finish" ? { sources: usedSources(sources, answer) } : undefined,
   });
+
 }
