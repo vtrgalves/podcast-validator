@@ -22,7 +22,10 @@ export type AgentSource = {
   page: number | null;
   pageEnd: number | null;
   similarity: number;
+  /** Trecho efetivamente enviado ao modelo (evidência do RAG na UI). */
+  excerpt: string;
 };
+
 
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-sol";
 export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-2";
@@ -149,6 +152,8 @@ export function toSources(chunks: RetrievedChunk[]): AgentSource[] {
       page: c.page_number,
       pageEnd: c.page_end,
       similarity: Number(c.similarity.toFixed(3)),
+      excerpt: c.content.trim().slice(0, 900),
+
     });
   }
   return out;
