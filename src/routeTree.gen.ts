@@ -18,6 +18,7 @@ import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicSyncOciRouteImport } from './routes/api/public/sync-oci'
 import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
+import { Route as AuthenticatedAppBaseConhecimentoRouteImport } from './routes/_authenticated/app.base-conhecimento'
 import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
 import { Route as AuthenticatedAppPodcastAgentThreadIdRouteImport } from './routes/_authenticated/app.podcast-agent.$threadId'
 
@@ -65,6 +66,12 @@ const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
   path: '/api/public/index-knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppBaseConhecimentoRoute =
+  AuthenticatedAppBaseConhecimentoRouteImport.update({
+    id: '/app/base-conhecimento',
+    path: '/app/base-conhecimento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppPodcastAgentIndexRoute =
   AuthenticatedAppPodcastAgentIndexRouteImport.update({
     id: '/app/podcast-agent/',
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -97,6 +105,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -111,6 +120,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
+  '/_authenticated/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/_authenticated/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/app/base-conhecimento'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/app/base-conhecimento'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/processando/$id'
     | '/relatorio/$id'
+    | '/_authenticated/app/base-conhecimento'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/_authenticated/app/podcast-agent/$threadId'
@@ -233,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexKnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/base-conhecimento': {
+      id: '/_authenticated/app/base-conhecimento'
+      path: '/app/base-conhecimento'
+      fullPath: '/app/base-conhecimento'
+      preLoaderRoute: typeof AuthenticatedAppBaseConhecimentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/podcast-agent/': {
       id: '/_authenticated/app/podcast-agent/'
       path: '/app/podcast-agent'
@@ -251,11 +271,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppBaseConhecimentoRoute: typeof AuthenticatedAppBaseConhecimentoRoute
   AuthenticatedAppPodcastAgentThreadIdRoute: typeof AuthenticatedAppPodcastAgentThreadIdRoute
   AuthenticatedAppPodcastAgentIndexRoute: typeof AuthenticatedAppPodcastAgentIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppBaseConhecimentoRoute: AuthenticatedAppBaseConhecimentoRoute,
   AuthenticatedAppPodcastAgentThreadIdRoute:
     AuthenticatedAppPodcastAgentThreadIdRoute,
   AuthenticatedAppPodcastAgentIndexRoute:
