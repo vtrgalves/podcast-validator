@@ -61,11 +61,13 @@ export type Database = {
       documents: {
         Row: {
           author: string | null
+          category: string | null
           chunk_count: number
           created_at: string
           doc_type: string
           file_name: string
           id: string
+          oci_object_name: string | null
           ocr_used: boolean
           page_count: number | null
           status: string
@@ -74,11 +76,13 @@ export type Database = {
         }
         Insert: {
           author?: string | null
+          category?: string | null
           chunk_count?: number
           created_at?: string
           doc_type?: string
           file_name: string
           id?: string
+          oci_object_name?: string | null
           ocr_used?: boolean
           page_count?: number | null
           status?: string
@@ -87,11 +91,13 @@ export type Database = {
         }
         Update: {
           author?: string | null
+          category?: string | null
           chunk_count?: number
           created_at?: string
           doc_type?: string
           file_name?: string
           id?: string
+          oci_object_name?: string | null
           ocr_used?: boolean
           page_count?: number | null
           status?: string
