@@ -18,7 +18,6 @@ import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicSyncOciRouteImport } from './routes/api/public/sync-oci'
 import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
-import { Route as ApiPublicAgentTestRouteImport } from './routes/api/public/agent-test'
 import { Route as AuthenticatedAppBaseConhecimentoRouteImport } from './routes/_authenticated/app.base-conhecimento'
 import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
 import { Route as AuthenticatedAppPodcastAgentThreadIdRouteImport } from './routes/_authenticated/app.podcast-agent.$threadId'
@@ -67,11 +66,6 @@ const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
   path: '/api/public/index-knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicAgentTestRoute = ApiPublicAgentTestRouteImport.update({
-  id: '/api/public/agent-test',
-  path: '/api/public/agent-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAppBaseConhecimentoRoute =
   AuthenticatedAppBaseConhecimentoRouteImport.update({
     id: '/app/base-conhecimento',
@@ -99,7 +93,6 @@ export interface FileRoutesByFullPath {
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
   '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
-  '/api/public/agent-test': typeof ApiPublicAgentTestRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -113,7 +106,6 @@ export interface FileRoutesByTo {
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
   '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
-  '/api/public/agent-test': typeof ApiPublicAgentTestRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -129,7 +121,6 @@ export interface FileRoutesById {
   '/processando/$id': typeof ProcessandoIdRoute
   '/relatorio/$id': typeof RelatorioIdRoute
   '/_authenticated/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
-  '/api/public/agent-test': typeof ApiPublicAgentTestRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/_authenticated/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
@@ -145,7 +136,6 @@ export interface FileRouteTypes {
     | '/processando/$id'
     | '/relatorio/$id'
     | '/app/base-conhecimento'
-    | '/api/public/agent-test'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
@@ -159,7 +149,6 @@ export interface FileRouteTypes {
     | '/processando/$id'
     | '/relatorio/$id'
     | '/app/base-conhecimento'
-    | '/api/public/agent-test'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
@@ -174,7 +163,6 @@ export interface FileRouteTypes {
     | '/processando/$id'
     | '/relatorio/$id'
     | '/_authenticated/app/base-conhecimento'
-    | '/api/public/agent-test'
     | '/api/public/index-knowledge'
     | '/api/public/sync-oci'
     | '/_authenticated/app/podcast-agent/$threadId'
@@ -189,7 +177,6 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ProcessandoIdRoute: typeof ProcessandoIdRoute
   RelatorioIdRoute: typeof RelatorioIdRoute
-  ApiPublicAgentTestRoute: typeof ApiPublicAgentTestRoute
   ApiPublicIndexKnowledgeRoute: typeof ApiPublicIndexKnowledgeRoute
   ApiPublicSyncOciRoute: typeof ApiPublicSyncOciRoute
 }
@@ -259,13 +246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIndexKnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/agent-test': {
-      id: '/api/public/agent-test'
-      path: '/api/public/agent-test'
-      fullPath: '/api/public/agent-test'
-      preLoaderRoute: typeof ApiPublicAgentTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/app/base-conhecimento': {
       id: '/_authenticated/app/base-conhecimento'
       path: '/app/base-conhecimento'
@@ -315,7 +295,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ProcessandoIdRoute: ProcessandoIdRoute,
   RelatorioIdRoute: RelatorioIdRoute,
-  ApiPublicAgentTestRoute: ApiPublicAgentTestRoute,
   ApiPublicIndexKnowledgeRoute: ApiPublicIndexKnowledgeRoute,
   ApiPublicSyncOciRoute: ApiPublicSyncOciRoute,
 }
