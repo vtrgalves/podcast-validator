@@ -26,6 +26,7 @@ type AgentSource = {
   page: number | null;
   pageEnd?: number | null;
   similarity: number;
+  excerpt?: string;
 };
 
 function textOf(message: UIMessage) {
@@ -47,6 +48,7 @@ function pageLabel(s: AgentSource) {
 }
 
 function SourceList({ sources }: { sources: AgentSource[] }) {
+  const [open, setOpen] = useState<AgentSource | null>(null);
   if (sources.length === 0) return null;
   return (
     <div className="mt-3 rounded-lg border border-border/60 bg-surface/50 p-3">
@@ -55,15 +57,40 @@ function SourceList({ sources }: { sources: AgentSource[] }) {
       </p>
       <ul className="mt-2 space-y-1">
         {sources.map((s, i) => (
-          <li key={`${s.documentId}-${i}`} className="text-xs text-muted-foreground">
-            <span className="text-foreground">{s.title}</span> — {pageLabel(s)}
-            <span className="ml-1 opacity-60">({s.similarity.toFixed(2)})</span>
+          <li key={`${s.documentId}-${i}`}>
+            <button
+              type="button"
+              onClick={() => setOpen(s)}
+              className="flex w-full items-start gap-2 rounded-md px-1 py-1 text-left text-xs text-muted-foreground transition-colors hover:bg-surface-elevated hover:text-foreground"
+            >
+              <BookOpen className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+              <span>
+                <span className="text-foreground">{s.title}</span> — {pageLabel(s)}
+                <span className="ml-1 opacity-60">· Base de Conhecimento</span>
+              </span>
+            </button>
           </li>
         ))}
       </ul>
+
+      <Dialog open={open !== null} onOpenChange={(v) => !v && setOpen(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base">{open?.title}</DialogTitle>
+            <DialogDescription>
+              {open ? pageLabel(open) : ""} · Base de Conhecimento VTR Gestão
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[50vh] overflow-y-auto rounded-lg border border-border/60 bg-surface/50 p-3 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
+            {open?.excerpt?.trim() ||
+              "Trecho não disponível para esta fonte (mensagem anterior à atualização)."}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
 
 
 export function ChatWindow({
