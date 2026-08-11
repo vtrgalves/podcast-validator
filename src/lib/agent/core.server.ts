@@ -152,6 +152,8 @@ export function toSources(chunks: RetrievedChunk[]): AgentSource[] {
       page: c.page_number,
       pageEnd: c.page_end,
       similarity: Number(c.similarity.toFixed(3)),
+      excerpt: c.content.trim().slice(0, 900),
+
     });
   }
   return out;
