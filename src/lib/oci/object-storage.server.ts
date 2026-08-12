@@ -75,7 +75,7 @@ async function ociFetch(
     date,
   };
   const headersToSign = ["(request-target)", "host", "date"];
-  const headers: Record<string, string> = { host: h, date };
+  const headers: Record<string, string> = { date };
 
   if (method === "PUT" && body) {
     const sha = createHash("sha256").update(body).digest("base64");
