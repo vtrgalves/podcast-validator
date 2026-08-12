@@ -106,7 +106,7 @@ export async function listObjects(cfg: OciConfig, prefix?: string): Promise<OciO
   const qs = new URLSearchParams({ fields: "name,size,timeModified", limit: "100" });
   if (prefix) qs.set("prefix", prefix);
   const path = `/n/${encodeURIComponent(cfg.namespace)}/b/${encodeURIComponent(cfg.bucket)}/o?${qs}`;
-  const res = await ociFetch(cfg, "GET", path);
+  const res = await ociRequest(cfg, "GET", path);
   if (!res.ok) throw new Error(`OCI list ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const json = (await res.json()) as {
     objects?: Array<{ name: string; size?: number; timeModified?: string }>;
@@ -120,7 +120,7 @@ export async function listObjects(cfg: OciConfig, prefix?: string): Promise<OciO
 
 export async function headObject(cfg: OciConfig, objectName: string) {
   const path = `/n/${encodeURIComponent(cfg.namespace)}/b/${encodeURIComponent(cfg.bucket)}/o/${enc(objectName)}`;
-  const res = await ociFetch(cfg, "HEAD", path);
+  const res = await ociRequest(cfg, "HEAD", path);
   return { exists: res.ok, status: res.status };
 }
 
@@ -131,7 +131,7 @@ export async function putObject(
   contentType = "application/pdf",
 ) {
   const path = `/n/${encodeURIComponent(cfg.namespace)}/b/${encodeURIComponent(cfg.bucket)}/o/${enc(objectName)}`;
-  const res = await ociFetch(cfg, "PUT", path, body, contentType);
+  const res = await ociRequest(cfg, "PUT", path, body, contentType);
   if (!res.ok) throw new Error(`OCI put ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return { ok: true, objectName };
 }
