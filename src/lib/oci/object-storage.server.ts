@@ -69,14 +69,13 @@ async function ociFetch(
 ) {
   const h = host(cfg);
   const date = new Date().toUTCString();
-  // "host" e "date" podem ser reescritos pelo runtime; assinamos x-date, aceito pela OCI.
   const values: Record<string, string> = {
     "(request-target)": `${method.toLowerCase()} ${path}`,
     host: h,
-    "x-date": date,
+    date,
   };
-  const headersToSign = ["(request-target)", "host", "x-date"];
-  const headers: Record<string, string> = { "x-date": date };
+  const headersToSign = ["(request-target)", "host", "date"];
+  const headers: Record<string, string> = { date };
 
   if (method === "PUT" && body) {
     const sha = createHash("sha256").update(body).digest("base64");
