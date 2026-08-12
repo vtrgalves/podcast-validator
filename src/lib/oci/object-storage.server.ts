@@ -60,7 +60,7 @@ function sign(cfg: OciConfig, headersToSign: string[], values: Record<string, st
   return `Signature version="1",keyId="${keyId}",algorithm="rsa-sha256",headers="${headersToSign.join(" ")}",signature="${signature}"`;
 }
 
-async function ociFetch(
+export async function ociRequest(
   cfg: OciConfig,
   method: "GET" | "HEAD" | "PUT",
   path: string,
