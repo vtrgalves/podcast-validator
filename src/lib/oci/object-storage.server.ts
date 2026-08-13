@@ -62,7 +62,7 @@ function sign(cfg: OciConfig, headersToSign: string[], values: Record<string, st
 
 export async function ociRequest(
   cfg: OciConfig,
-  method: "GET" | "HEAD" | "PUT",
+  method: "GET" | "HEAD" | "PUT" | "POST",
   path: string,
   body?: Uint8Array,
   contentType?: string,
@@ -77,7 +77,7 @@ export async function ociRequest(
   const headersToSign = ["(request-target)", "host", "date"];
   const headers: Record<string, string> = { date };
 
-  if (method === "PUT" && body) {
+  if ((method === "PUT" || method === "POST") && body) {
     const sha = createHash("sha256").update(body).digest("base64");
     values["x-content-sha256"] = sha;
     values["content-type"] = contentType ?? "application/octet-stream";
@@ -134,4 +134,17 @@ export async function putObject(
   const res = await ociRequest(cfg, "PUT", path, body, contentType);
   if (!res.ok) throw new Error(`OCI put ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return { ok: true, objectName };
+}
+
+/** Cria o bucket configurado no compartimento raiz (tenancy), se ainda não existir. */
+export async function ensureBucket(cfg: OciConfig) {
+  const nsPath = `/n/${encodeURIComponent(cfg.namespace)}/b/`;
+  const head = await ociRequest(cfg, "GET", `${nsPath}${encodeURIComponent(cfg.bucket)}`);
+  if (head.ok) return { created: false };
+  const body = new TextEncoder().encode(
+    JSON.stringify({ name: cfg.bucket, compartmentId: cfg.tenancy, publicAccessType: "NoPublicAccess" }),
+  );
+  const res = await ociRequest(cfg, "POST", nsPath, body, "application/json");
+  if (!res.ok) throw new Error(`OCI createBucket ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  return { created: true };
 }

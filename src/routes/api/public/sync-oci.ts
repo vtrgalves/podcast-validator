@@ -8,7 +8,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readFile } from "fs/promises";
 import { adminClient } from "@/lib/agent/retrieval.server";
-import { getOciConfig, missingOciEnv, headObject, putObject } from "@/lib/oci/object-storage.server";
+import { getOciConfig, missingOciEnv, headObject, putObject, ensureBucket } from "@/lib/oci/object-storage.server";
 
 export const Route = createFileRoute("/api/public/sync-oci")({
   server: {
@@ -28,6 +28,8 @@ export const Route = createFileRoute("/api/public/sync-oci")({
             { status: 400 },
           );
         }
+
+        await ensureBucket(cfg);
 
         const supabase = adminClient();
         const { data, error } = await supabase
