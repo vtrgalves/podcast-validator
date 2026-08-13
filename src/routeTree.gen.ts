@@ -17,7 +17,6 @@ import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiPublicSyncOciRouteImport } from './routes/api/public/sync-oci'
-import { Route as ApiPublicOciProbeRouteImport } from './routes/api/public/oci-probe'
 import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
 import { Route as AuthenticatedAppBaseConhecimentoRouteImport } from './routes/_authenticated/app.base-conhecimento'
 import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
@@ -62,11 +61,6 @@ const ApiPublicSyncOciRoute = ApiPublicSyncOciRouteImport.update({
   path: '/api/public/sync-oci',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicOciProbeRoute = ApiPublicOciProbeRouteImport.update({
-  id: '/api/public/oci-probe',
-  path: '/api/public/oci-probe',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
   id: '/api/public/index-knowledge',
   path: '/api/public/index-knowledge',
@@ -100,7 +94,6 @@ export interface FileRoutesByFullPath {
   '/relatorio/$id': typeof RelatorioIdRoute
   '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
-  '/api/public/oci-probe': typeof ApiPublicOciProbeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
@@ -114,7 +107,6 @@ export interface FileRoutesByTo {
   '/relatorio/$id': typeof RelatorioIdRoute
   '/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
-  '/api/public/oci-probe': typeof ApiPublicOciProbeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/app/podcast-agent': typeof AuthenticatedAppPodcastAgentIndexRoute
@@ -130,7 +122,6 @@ export interface FileRoutesById {
   '/relatorio/$id': typeof RelatorioIdRoute
   '/_authenticated/app/base-conhecimento': typeof AuthenticatedAppBaseConhecimentoRoute
   '/api/public/index-knowledge': typeof ApiPublicIndexKnowledgeRoute
-  '/api/public/oci-probe': typeof ApiPublicOciProbeRoute
   '/api/public/sync-oci': typeof ApiPublicSyncOciRoute
   '/_authenticated/app/podcast-agent/$threadId': typeof AuthenticatedAppPodcastAgentThreadIdRoute
   '/_authenticated/app/podcast-agent/': typeof AuthenticatedAppPodcastAgentIndexRoute
@@ -146,7 +137,6 @@ export interface FileRouteTypes {
     | '/relatorio/$id'
     | '/app/base-conhecimento'
     | '/api/public/index-knowledge'
-    | '/api/public/oci-probe'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
     | '/app/podcast-agent/'
@@ -160,7 +150,6 @@ export interface FileRouteTypes {
     | '/relatorio/$id'
     | '/app/base-conhecimento'
     | '/api/public/index-knowledge'
-    | '/api/public/oci-probe'
     | '/api/public/sync-oci'
     | '/app/podcast-agent/$threadId'
     | '/app/podcast-agent'
@@ -175,7 +164,6 @@ export interface FileRouteTypes {
     | '/relatorio/$id'
     | '/_authenticated/app/base-conhecimento'
     | '/api/public/index-knowledge'
-    | '/api/public/oci-probe'
     | '/api/public/sync-oci'
     | '/_authenticated/app/podcast-agent/$threadId'
     | '/_authenticated/app/podcast-agent/'
@@ -190,7 +178,6 @@ export interface RootRouteChildren {
   ProcessandoIdRoute: typeof ProcessandoIdRoute
   RelatorioIdRoute: typeof RelatorioIdRoute
   ApiPublicIndexKnowledgeRoute: typeof ApiPublicIndexKnowledgeRoute
-  ApiPublicOciProbeRoute: typeof ApiPublicOciProbeRoute
   ApiPublicSyncOciRoute: typeof ApiPublicSyncOciRoute
 }
 
@@ -252,13 +239,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSyncOciRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/oci-probe': {
-      id: '/api/public/oci-probe'
-      path: '/api/public/oci-probe'
-      fullPath: '/api/public/oci-probe'
-      preLoaderRoute: typeof ApiPublicOciProbeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/index-knowledge': {
       id: '/api/public/index-knowledge'
       path: '/api/public/index-knowledge'
@@ -316,7 +296,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProcessandoIdRoute: ProcessandoIdRoute,
   RelatorioIdRoute: RelatorioIdRoute,
   ApiPublicIndexKnowledgeRoute: ApiPublicIndexKnowledgeRoute,
-  ApiPublicOciProbeRoute: ApiPublicOciProbeRoute,
   ApiPublicSyncOciRoute: ApiPublicSyncOciRoute,
 }
 export const routeTree = rootRouteImport
