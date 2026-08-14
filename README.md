@@ -163,6 +163,10 @@ npm run dev
 Nenhuma credencial real é distribuída no repositório — use apenas placeholders do
 `.env.example` e suas próprias chaves.
 
+## Aplicação online
+
+https://podcast-validator.lovable.app
+
 ## Evidências
 
 | # | Evidência | Arquivo |
@@ -184,6 +188,6 @@ A evidência 4 deve ser capturada manualmente no Console da Oracle Cloud.
 | Recuperação de conhecimento | Embeddings + pgvector | ✅ |
 | Uso de Oracle Cloud | OCI Object Storage | ✅ |
 | Serviço OCI real | Bucket `vtr-podcast-knowledge` | ✅ |
-| Projeto em nuvem | URL pública | validar |
+| Projeto em nuvem | https://podcast-validator.lovable.app | ✅ |
 | Repositório público GitHub | URL do repositório | validar |
-| Evidência no README | Screenshots da aplicação online | validar |
+| Evidência no README | Screenshots da aplicação online (`docs/evidencias/`) | ✅ |
