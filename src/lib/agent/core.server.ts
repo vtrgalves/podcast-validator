@@ -8,6 +8,12 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { adminClient, retrieveChunks, type RetrievedChunk } from "./retrieval.server";
+import {
+  ociGatewayConfigured,
+  retrieveViaOci,
+  type OciExecution,
+} from "./oci-gateway.server";
+
 
 export type AgentEnv = {
   apiKey: string;
