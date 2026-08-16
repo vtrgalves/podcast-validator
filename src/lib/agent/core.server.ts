@@ -254,7 +254,10 @@ export async function runAgentStream(opts: {
   return result.toUIMessageStreamResponse({
     originalMessages: opts.messages,
     messageMetadata: ({ part }) =>
-      part.type === "finish" ? { sources: usedSources(sources, answer) } : undefined,
+      part.type === "finish"
+        ? { sources: usedSources(sources, answer), ...(execution ? { execution } : {}) }
+        : undefined,
+
   });
 
 }
