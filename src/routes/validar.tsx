@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { createValidation } from "@/lib/validate.functions";
+import {
+  uploadAttachment,
+  ALLOWED_ATTACHMENT_TYPES,
+  MAX_ATTACHMENT_BYTES,
+} from "@/lib/attachments.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/validar")({
@@ -36,11 +41,24 @@ export const Route = createFileRoute("/validar")({
 type AttachmentMeta = { name: string; path: string; size: number; type: string };
 
 const MAX_CHARS = 700;
-const ALLOWED = ["application/pdf", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
+const ALLOWED = Object.keys(ALLOWED_ATTACHMENT_TYPES);
+
+function toBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read error"));
+    reader.onload = () => {
+      const result = String(reader.result);
+      resolve(result.slice(result.indexOf(",") + 1));
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function ValidarPage() {
   const navigate = useNavigate();
   const create = useServerFn(createValidation);
+  const upload = useServerFn(uploadAttachment);
 
   const [desc, setDesc] = useState("");
   const [niche, setNiche] = useState("");
@@ -58,25 +76,32 @@ function ValidarPage() {
       toast.error("Máximo de 3 anexos.");
       return;
     }
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      toast.error("Faça login para anexar arquivos.");
+      e.target.value = "";
+      return;
+    }
     setUploading(true);
     const next: AttachmentMeta[] = [];
     try {
       for (const f of Array.from(fileList)) {
-        if (f.size > 10 * 1024 * 1024) {
+        if (f.size > MAX_ATTACHMENT_BYTES) {
           toast.error(`${f.name}: máximo 10MB.`);
           continue;
         }
-        if (!ALLOWED.includes(f.type) && !f.name.match(/\.(pdf|txt|docx|pptx)$/i)) {
+        if (!ALLOWED.includes(f.type) && !f.name.match(/\.(pdf|txt|md|docx|pptx)$/i)) {
           toast.error(`${f.name}: formato não suportado.`);
           continue;
         }
-        const path = `${crypto.randomUUID()}-${f.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error } = await supabase.storage.from("attachments").upload(path, f);
-        if (error) {
+        try {
+          const meta = await upload({
+            data: { fileName: f.name, contentType: f.type, dataBase64: await toBase64(f) },
+          });
+          next.push(meta);
+        } catch {
           toast.error(`Falha ao enviar ${f.name}`);
-          continue;
         }
-        next.push({ name: f.name, path, size: f.size, type: f.type });
       }
       setFiles((prev) => [...prev, ...next]);
     } finally {
@@ -84,6 +109,7 @@ function ValidarPage() {
       e.target.value = "";
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
