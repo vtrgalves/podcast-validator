@@ -214,6 +214,8 @@ export function ChatWindow({
                     <>
                       <MessageResponse>{textOf(message)}</MessageResponse>
                       <SourceList sources={sourcesOf(message)} />
+                      <OciBadge execution={executionOf(message)} />
+
                     </>
                   ) : (
                     <span className="whitespace-pre-wrap">{textOf(message)}</span>
