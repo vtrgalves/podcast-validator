@@ -264,6 +264,7 @@ export type Database = {
           report: Json | null
           score: number | null
           status: string
+          user_id: string | null
         }
         Insert: {
           attachments?: Json
@@ -277,6 +278,7 @@ export type Database = {
           report?: Json | null
           score?: number | null
           status?: string
+          user_id?: string | null
         }
         Update: {
           attachments?: Json
@@ -290,6 +292,7 @@ export type Database = {
           report?: Json | null
           score?: number | null
           status?: string
+          user_id?: string | null
         }
         Relationships: []
       }

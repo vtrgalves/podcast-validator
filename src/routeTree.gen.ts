@@ -9,22 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ValidarRouteImport } from './routes/validar'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
-import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ValidarRouteImport } from './routes/validar'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as ApiPublicSyncOciRouteImport } from './routes/api/public/sync-oci'
-import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
+import { Route as ProcessandoIdRouteImport } from './routes/processando.$id'
+import { Route as RelatorioIdRouteImport } from './routes/relatorio.$id'
 import { Route as AuthenticatedAppBaseConhecimentoRouteImport } from './routes/_authenticated/app.base-conhecimento'
+import { Route as ApiPublicIndexKnowledgeRouteImport } from './routes/api/public/index-knowledge'
+import { Route as ApiPublicSyncOciRouteImport } from './routes/api/public/sync-oci'
 import { Route as AuthenticatedAppPodcastAgentIndexRouteImport } from './routes/_authenticated/app.podcast-agent.index'
 import { Route as AuthenticatedAppPodcastAgentThreadIdRouteImport } from './routes/_authenticated/app.podcast-agent.$threadId'
 
-const ValidarRoute = ValidarRouteImport.update({
-  id: '/validar',
-  path: '/validar',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -32,23 +36,9 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RelatorioIdRoute = RelatorioIdRouteImport.update({
-  id: '/relatorio/$id',
-  path: '/relatorio/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProcessandoIdRoute = ProcessandoIdRouteImport.update({
-  id: '/processando/$id',
-  path: '/processando/$id',
+const ValidarRoute = ValidarRouteImport.update({
+  id: '/validar',
+  path: '/validar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -56,14 +46,14 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSyncOciRoute = ApiPublicSyncOciRouteImport.update({
-  id: '/api/public/sync-oci',
-  path: '/api/public/sync-oci',
+const ProcessandoIdRoute = ProcessandoIdRouteImport.update({
+  id: '/processando/$id',
+  path: '/processando/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
-  id: '/api/public/index-knowledge',
-  path: '/api/public/index-knowledge',
+const RelatorioIdRoute = RelatorioIdRouteImport.update({
+  id: '/relatorio/$id',
+  path: '/relatorio/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppBaseConhecimentoRoute =
@@ -72,6 +62,16 @@ const AuthenticatedAppBaseConhecimentoRoute =
     path: '/app/base-conhecimento',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicIndexKnowledgeRoute = ApiPublicIndexKnowledgeRouteImport.update({
+  id: '/api/public/index-knowledge',
+  path: '/api/public/index-knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSyncOciRoute = ApiPublicSyncOciRouteImport.update({
+  id: '/api/public/sync-oci',
+  path: '/api/public/sync-oci',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppPodcastAgentIndexRoute =
   AuthenticatedAppPodcastAgentIndexRouteImport.update({
     id: '/app/podcast-agent/',
@@ -183,18 +183,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/validar': {
-      id: '/validar'
-      path: '/validar'
-      fullPath: '/validar'
-      preLoaderRoute: typeof ValidarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -204,25 +197,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/relatorio/$id': {
-      id: '/relatorio/$id'
-      path: '/relatorio/$id'
-      fullPath: '/relatorio/$id'
-      preLoaderRoute: typeof RelatorioIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/processando/$id': {
-      id: '/processando/$id'
-      path: '/processando/$id'
-      fullPath: '/processando/$id'
-      preLoaderRoute: typeof ProcessandoIdRouteImport
+    '/validar': {
+      id: '/validar'
+      path: '/validar'
+      fullPath: '/validar'
+      preLoaderRoute: typeof ValidarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -232,18 +218,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/sync-oci': {
-      id: '/api/public/sync-oci'
-      path: '/api/public/sync-oci'
-      fullPath: '/api/public/sync-oci'
-      preLoaderRoute: typeof ApiPublicSyncOciRouteImport
+    '/processando/$id': {
+      id: '/processando/$id'
+      path: '/processando/$id'
+      fullPath: '/processando/$id'
+      preLoaderRoute: typeof ProcessandoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/index-knowledge': {
-      id: '/api/public/index-knowledge'
-      path: '/api/public/index-knowledge'
-      fullPath: '/api/public/index-knowledge'
-      preLoaderRoute: typeof ApiPublicIndexKnowledgeRouteImport
+    '/relatorio/$id': {
+      id: '/relatorio/$id'
+      path: '/relatorio/$id'
+      fullPath: '/relatorio/$id'
+      preLoaderRoute: typeof RelatorioIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/base-conhecimento': {
@@ -252,6 +238,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/base-conhecimento'
       preLoaderRoute: typeof AuthenticatedAppBaseConhecimentoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/index-knowledge': {
+      id: '/api/public/index-knowledge'
+      path: '/api/public/index-knowledge'
+      fullPath: '/api/public/index-knowledge'
+      preLoaderRoute: typeof ApiPublicIndexKnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sync-oci': {
+      id: '/api/public/sync-oci'
+      path: '/api/public/sync-oci'
+      fullPath: '/api/public/sync-oci'
+      preLoaderRoute: typeof ApiPublicSyncOciRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/podcast-agent/': {
       id: '/_authenticated/app/podcast-agent/'
