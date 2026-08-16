@@ -193,19 +193,31 @@ export async function runAgentStream(opts: {
 
   const question = lastUserText(opts.messages);
 
-  const [chunks, docs] = await Promise.all([
-    question
-      ? retrieveChunks(question, {
-          apiKey: cfg.apiKey,
-          gatewayUrl: cfg.gatewayUrl,
-          embeddingModel: cfg.embeddingModel,
-        }).catch((e) => {
-          console.error("rag error", e);
-          return [] as RetrievedChunk[];
-        })
-      : Promise.resolve([] as RetrievedChunk[]),
-    listIndexedDocuments().catch(() => []),
-  ]);
+  // Execução na Oracle Cloud: quando o gateway OCI está configurado, a
+  // recuperação do conhecimento passa pela OCI. Falha → fallback local.
+  async function retrieve(): Promise<{ chunks: RetrievedChunk[]; execution: OciExecution | null }> {
+    if (!question) return { chunks: [], execution: null };
+    if (ociGatewayConfigured()) {
+      const viaOci = await retrieveViaOci(question);
+      if (viaOci) return { chunks: viaOci.chunks, execution: viaOci.execution };
+    }
+    try {
+      const chunks = await retrieveChunks(question, {
+        apiKey: cfg.apiKey,
+        gatewayUrl: cfg.gatewayUrl,
+        embeddingModel: cfg.embeddingModel,
+      });
+      return { chunks, execution: null };
+    } catch (e) {
+      console.error("rag error", e);
+      return { chunks: [], execution: null };
+    }
+  }
+
+  const [retrieval, docs] = await Promise.all([retrieve(), listIndexedDocuments().catch(() => [])]);
+  const chunks = retrieval.chunks;
+  const execution = retrieval.execution;
+
 
   const kbBlock = docs.length
     ? `BASE DE CONHECIMENTO DISPONÍVEL (documentos indexados):\n${docs
