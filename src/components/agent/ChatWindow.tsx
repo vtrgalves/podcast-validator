@@ -50,6 +50,26 @@ function sourcesOf(message: UIMessage): AgentSource[] {
   return Array.isArray(meta?.sources) ? meta.sources : [];
 }
 
+type OciExecution = { gateway: string; region: string; latencyMs: number; invocation: number | null };
+
+function executionOf(message: UIMessage): OciExecution | null {
+  const meta = message.metadata as { execution?: OciExecution } | undefined;
+  return meta?.execution ?? null;
+}
+
+function OciBadge({ execution }: { execution: OciExecution | null }) {
+  if (!execution) return null;
+  return (
+    <p className="mt-2 text-[11px] text-muted-foreground">
+      <span className="rounded-full border border-border/60 bg-surface/50 px-2 py-0.5">
+        Execução via Oracle Cloud Infrastructure — {execution.gateway} · {execution.region} ·{" "}
+        {execution.latencyMs} ms
+      </span>
+    </p>
+  );
+}
+
+
 function pageLabel(s: AgentSource) {
   if (s.page == null) return "página não informada";
   if (s.pageEnd && s.pageEnd !== s.page) return `páginas ${s.page}-${s.pageEnd}`;
