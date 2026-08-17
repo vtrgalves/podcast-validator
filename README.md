@@ -163,7 +163,7 @@ A sincronização é **idempotente**: objetos já presentes não são reenviados
 - Lovable / Lovable Cloud
 - PostgreSQL + pgvector
 - Embeddings e LLM (arquitetura RAG)
-- Oracle Cloud Infrastructure — Object Storage
+- Oracle Cloud Infrastructure — Compute (execução do agente) e Object Storage
 
 ## Segurança
 
