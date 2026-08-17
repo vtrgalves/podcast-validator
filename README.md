@@ -98,7 +98,8 @@ Bucket vtr-podcast-knowledge
 flowchart TD
     U[Usuário] --> A[Podcast Strategy Agent]
     A --> B[Backend / Chat]
-    B --> E[Embedding da pergunta]
+    B --> G[OCI Compute — vtr-agent-gateway<br/>sa-saopaulo-1]
+    G --> E[Embedding da pergunta]
     E --> V[(PostgreSQL + pgvector)]
     V --> C[Chunks da Base de Conhecimento]
     C --> L[LLM + contexto documental]
@@ -112,7 +113,29 @@ flowchart TD
 
 ## Oracle Cloud Infrastructure — OCI
 
-O projeto utiliza efetivamente o **Oracle Cloud Infrastructure Object Storage**.
+O projeto usa **dois serviços reais da Oracle Cloud**: Compute (execução) e Object
+Storage (documentos originais).
+
+### 1. OCI Compute — camada de execução do agente
+
+- **Serviço:** OCI Compute (Always Free, `VM.Standard.E2.1.Micro`)
+- **Instância:** `vtr-agent-gateway-2` — região `sa-saopaulo-1`
+- **Função:** todas as recuperações de conhecimento do chat passam por este gateway
+  hospedado na Oracle antes de chegar ao motor RAG.
+- **Rede:** VCN dedicada, subnet pública, Internet Gateway e Security List restrita.
+- **Segurança:** a chamada gateway → backend é autenticada por `AGENT_SHARED_SECRET`
+  (header `x-agent-secret`); nenhuma credencial fica no frontend.
+- **Resiliência:** se o gateway estiver indisponível, o núcleo faz fallback local —
+  o produto nunca quebra.
+- **Evidência no produto:** cada resposta exibe o selo
+  *“Execução via Oracle Cloud Infrastructure — oci-compute/vtr-agent-gateway ·
+  sa-saopaulo-1 · <latência> ms”*.
+
+> Observação técnica: OCI Functions + API Gateway exigem o OCI Registry (OCIR), que
+> retorna `FREE_TIER_NOT_SUPPORTED` nesta conta Always Free. A camada executável foi
+> então hospedada em OCI Compute, mantendo o mesmo contrato HTTP.
+
+### 2. OCI Object Storage — documentos originais
 
 - **Bucket:** `vtr-podcast-knowledge`
 - **Região:** `sa-saopaulo-1`
@@ -131,6 +154,7 @@ O sistema:
 
 A sincronização é **idempotente**: objetos já presentes não são reenviados.
 
+
 ## Tecnologias
 
 - React + TypeScript
@@ -139,7 +163,7 @@ A sincronização é **idempotente**: objetos já presentes não são reenviados
 - Lovable / Lovable Cloud
 - PostgreSQL + pgvector
 - Embeddings e LLM (arquitetura RAG)
-- Oracle Cloud Infrastructure — Object Storage
+- Oracle Cloud Infrastructure — Compute (execução do agente) e Object Storage
 
 ## Segurança
 
@@ -175,6 +199,10 @@ https://podcast-validator.lovable.app
 | 2 | Resposta com RAG + Fontes consultadas (documento e página) | `docs/evidencias/02-rag-fontes.png` |
 | 3 | `/app/base-conhecimento` — 2 documentos indexados + Oracle Cloud conectado | `docs/evidencias/03-base-conhecimento.png` |
 | 4 | Console OCI — Object Storage → `vtr-podcast-knowledge` → Objects | `docs/evidencias/04-oci-console.png` |
+| 5 | Resposta do agente com selo *Execução via Oracle Cloud Infrastructure* (OCI Compute) | `docs/evidencias/05-oci-agent-execution.png` |
+
+![Execução do agente via OCI Compute](docs/evidencias/05-oci-agent-execution.png)
+
 
 A evidência 4 deve ser capturada manualmente no Console da Oracle Cloud.
 
@@ -186,8 +214,10 @@ A evidência 4 deve ser capturada manualmente no Console da Oracle Cloud.
 | Consulta conversacional | Chat com múltiplas conversas | ✅ |
 | Base documental | Pesquisa MBA + Ebook | ✅ |
 | Recuperação de conhecimento | Embeddings + pgvector | ✅ |
-| Uso de Oracle Cloud | OCI Object Storage | ✅ |
-| Serviço OCI real | Bucket `vtr-podcast-knowledge` | ✅ |
+| Uso de Oracle Cloud | OCI Compute (execução) + OCI Object Storage | ✅ |
+| Serviço OCI real | Instância `vtr-agent-gateway-2` + bucket `vtr-podcast-knowledge` | ✅ |
+
+
 | Projeto em nuvem | https://podcast-validator.lovable.app | ✅ |
 | Repositório público GitHub | URL do repositório | validar |
 | Evidência no README | Screenshots da aplicação online (`docs/evidencias/`) | ✅ |
