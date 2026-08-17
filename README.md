@@ -199,6 +199,10 @@ https://podcast-validator.lovable.app
 | 2 | Resposta com RAG + Fontes consultadas (documento e página) | `docs/evidencias/02-rag-fontes.png` |
 | 3 | `/app/base-conhecimento` — 2 documentos indexados + Oracle Cloud conectado | `docs/evidencias/03-base-conhecimento.png` |
 | 4 | Console OCI — Object Storage → `vtr-podcast-knowledge` → Objects | `docs/evidencias/04-oci-console.png` |
+| 5 | Resposta do agente com selo *Execução via Oracle Cloud Infrastructure* (OCI Compute) | `docs/evidencias/05-oci-agent-execution.png` |
+
+![Execução do agente via OCI Compute](docs/evidencias/05-oci-agent-execution.png)
+
 
 A evidência 4 deve ser capturada manualmente no Console da Oracle Cloud.
 
