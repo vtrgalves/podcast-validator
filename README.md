@@ -98,7 +98,8 @@ Bucket vtr-podcast-knowledge
 flowchart TD
     U[Usuário] --> A[Podcast Strategy Agent]
     A --> B[Backend / Chat]
-    B --> E[Embedding da pergunta]
+    B --> G[OCI Compute — vtr-agent-gateway<br/>sa-saopaulo-1]
+    G --> E[Embedding da pergunta]
     E --> V[(PostgreSQL + pgvector)]
     V --> C[Chunks da Base de Conhecimento]
     C --> L[LLM + contexto documental]
@@ -112,7 +113,29 @@ flowchart TD
 
 ## Oracle Cloud Infrastructure — OCI
 
-O projeto utiliza efetivamente o **Oracle Cloud Infrastructure Object Storage**.
+O projeto usa **dois serviços reais da Oracle Cloud**: Compute (execução) e Object
+Storage (documentos originais).
+
+### 1. OCI Compute — camada de execução do agente
+
+- **Serviço:** OCI Compute (Always Free, `VM.Standard.E2.1.Micro`)
+- **Instância:** `vtr-agent-gateway-2` — região `sa-saopaulo-1`
+- **Função:** todas as recuperações de conhecimento do chat passam por este gateway
+  hospedado na Oracle antes de chegar ao motor RAG.
+- **Rede:** VCN dedicada, subnet pública, Internet Gateway e Security List restrita.
+- **Segurança:** a chamada gateway → backend é autenticada por `AGENT_SHARED_SECRET`
+  (header `x-agent-secret`); nenhuma credencial fica no frontend.
+- **Resiliência:** se o gateway estiver indisponível, o núcleo faz fallback local —
+  o produto nunca quebra.
+- **Evidência no produto:** cada resposta exibe o selo
+  *“Execução via Oracle Cloud Infrastructure — oci-compute/vtr-agent-gateway ·
+  sa-saopaulo-1 · <latência> ms”*.
+
+> Observação técnica: OCI Functions + API Gateway exigem o OCI Registry (OCIR), que
+> retorna `FREE_TIER_NOT_SUPPORTED` nesta conta Always Free. A camada executável foi
+> então hospedada em OCI Compute, mantendo o mesmo contrato HTTP.
+
+### 2. OCI Object Storage — documentos originais
 
 - **Bucket:** `vtr-podcast-knowledge`
 - **Região:** `sa-saopaulo-1`
@@ -130,6 +153,7 @@ O sistema:
   e metadados públicos dos objetos.
 
 A sincronização é **idempotente**: objetos já presentes não são reenviados.
+
 
 ## Tecnologias
 
