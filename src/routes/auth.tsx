@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,21 @@ import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
+const DEFAULT_NEXT = "/app/podcast-agent";
+
+/** Only same-origin, absolute internal paths are accepted (no open redirect). */
+function safeNext(value: unknown): string {
+  if (typeof value !== "string") return DEFAULT_NEXT;
+  if (!value.startsWith("/") || value.startsWith("//")) return DEFAULT_NEXT;
+  if (value.startsWith("/auth")) return DEFAULT_NEXT;
+  return value;
+}
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: safeNext(search.next),
+  }),
+
   head: () => ({
     meta: [
       { title: "Entrar — VTR Gestão IA" },
