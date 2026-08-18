@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,21 @@ import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
+const DEFAULT_NEXT = "/app/podcast-agent";
+
+/** Only same-origin, absolute internal paths are accepted (no open redirect). */
+function safeNext(value: unknown): string {
+  if (typeof value !== "string") return DEFAULT_NEXT;
+  if (!value.startsWith("/") || value.startsWith("//")) return DEFAULT_NEXT;
+  if (value.startsWith("/auth")) return DEFAULT_NEXT;
+  return value;
+}
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: safeNext(search.next),
+  }),
+
   head: () => ({
     meta: [
       { title: "Entrar — VTR Gestão IA" },
@@ -31,17 +45,34 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const goNext = useCallback(() => {
+    navigate({ to: safeNext(next), replace: true });
+  }, [navigate, next]);
+
+  // Resolve the session BEFORE deciding anything: after the Google round-trip the
+  // session may only land a tick later (setSession / storage write).
   useEffect(() => {
+    let cancelled = false;
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app/podcast-agent" });
+      if (!cancelled && data.session) goNext();
     });
-  }, [navigate]);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
+        goNext();
+      }
+    });
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [goNext]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +83,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/app/podcast-agent`,
+            emailRedirectTo: `${window.location.origin}${safeNext(next)}`,
             data: { full_name: name },
           },
         });
@@ -63,7 +94,7 @@ function AuthPage() {
         if (error) throw error;
       }
       const { data } = await supabase.auth.getSession();
-      if (data.session) navigate({ to: "/app/podcast-agent" });
+      if (data.session) goNext();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível autenticar");
     } finally {
@@ -73,13 +104,17 @@ function AuthPage() {
 
   async function handleGoogle() {
     try {
+      // Return to this public auth route (never a protected path) carrying the
+      // intended destination, so the session can hydrate before we navigate.
+      const target = safeNext(next);
       await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}`,
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha no login com Google");
     }
   }
+
 
   return (
     <main className="min-h-screen bg-background bg-hero flex flex-col items-center justify-center px-4 py-12">

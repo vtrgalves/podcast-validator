@@ -37,9 +37,10 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
   });
 
   async function signOut() {
+    await queryClient.cancelQueries();
     await supabase.auth.signOut();
     queryClient.clear();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", search: { next: "/app/podcast-agent" }, replace: true });
   }
 
   return (
