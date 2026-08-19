@@ -191,39 +191,47 @@ Nenhuma credencial real é distribuída no repositório — use apenas placehold
 
 https://podcast-validator.lovable.app
 
-## Evidências
+## Evidências de execução
 
-| # | Evidência | Arquivo |
-| --- | --- | --- |
-| 1 | Agente funcionando no ambiente publicado | `docs/evidencias/01-agente.png` |
-| 2 | Resposta com RAG + Fontes consultadas (documento e página) | `docs/evidencias/02-rag-fontes.png` |
-| 3 | `/app/base-conhecimento` — 2 documentos indexados + Oracle Cloud conectado | `docs/evidencias/03-base-conhecimento.png` |
-| 4 | Console OCI — Object Storage → `vtr-podcast-knowledge` → Objects | `docs/evidencias/04-oci-console.png` |
-| 5 | Resposta do agente com selo *Execução via Oracle Cloud Infrastructure* (OCI Compute) | `docs/evidencias/05-oci-agent-execution.png` |
+Todas as imagens abaixo são capturas reais do produto publicado e do Console da
+Oracle Cloud Infrastructure. Os arquivos estão em `docs/evidencias/`.
+
+### 01 — Agente funcionando em produção
 
 ![Agente funcionando no ambiente publicado](docs/evidencias/01-agente.png)
 
+### 02 — RAG respondendo com fontes
+
 ![Resposta com RAG e Fontes consultadas](docs/evidencias/02-rag-fontes.png)
+
+### 03 — Base de Conhecimento
 
 ![Base de Conhecimento com documentos indexados](docs/evidencias/03-base-conhecimento.png)
 
+### 04 — OCI Object Storage
+
+![OCI Object Storage](docs/evidencias/04-oci-console.png)
+
+Os documentos originais utilizados pela Base de Conhecimento estão armazenados no bucket
+**`vtr-podcast-knowledge`** na **Oracle Cloud Infrastructure** (região `sa-saopaulo-1`),
+organizados nos prefixos `ebook/` e `research/`. A captura acima é do Console OCI em
+Object Storage → `vtr-podcast-knowledge` → aba **Objects**.
+
+### 05 — Execução do agente via OCI Compute
+
 ![Execução do agente via OCI Compute](docs/evidencias/05-oci-agent-execution.png)
-
-> A evidência 4 (Console OCI — Object Storage) depende de screenshot manual no Console da Oracle Cloud e ainda não está embutida.
-
 
 ## Requisitos do Challenge
 
 | Requisito | Implementação | Status |
-| --- | --- | --- |
-| Agente de IA baseado em documentos | Podcast Strategy Agent + RAG | ✅ |
-| Consulta conversacional | Chat com múltiplas conversas | ✅ |
-| Base documental | Pesquisa MBA + Ebook | ✅ |
-| Recuperação de conhecimento | Embeddings + pgvector | ✅ |
-| Uso de Oracle Cloud | OCI Compute (execução) + OCI Object Storage | ✅ |
-| Serviço OCI real | Instância `vtr-agent-gateway-2` + bucket `vtr-podcast-knowledge` | ✅ |
+|---|---|---|
+| Agente de IA conversacional | Podcast Strategy Agent | ✅ |
+| Respostas fundamentadas em documentos | RAG + pgvector + citações | ✅ |
+| Base de Conhecimento documental | Pesquisa MBA + Ebook | ✅ |
+| Projeto disponível online | https://podcast-validator.lovable.app | ✅ |
+| Uso de Oracle Cloud Infrastructure | Object Storage + OCI Compute | ✅ |
+| Documentos armazenados na OCI | bucket `vtr-podcast-knowledge` | ✅ |
+| Execução envolvendo OCI | OCI Compute Gateway | ✅ |
+| Repositório público GitHub | https://github.com/vtrgalves/podcast-validator | ✅ |
+| Evidências no README | `docs/evidencias` | ✅ |
 
-
-| Projeto em nuvem | https://podcast-validator.lovable.app | ✅ |
-| Repositório público GitHub | URL do repositório | validar |
-| Evidência no README | Screenshots da aplicação online (`docs/evidencias/`) | ✅ |
