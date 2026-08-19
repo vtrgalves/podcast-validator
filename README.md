@@ -201,10 +201,16 @@ https://podcast-validator.lovable.app
 | 4 | Console OCI — Object Storage → `vtr-podcast-knowledge` → Objects | `docs/evidencias/04-oci-console.png` |
 | 5 | Resposta do agente com selo *Execução via Oracle Cloud Infrastructure* (OCI Compute) | `docs/evidencias/05-oci-agent-execution.png` |
 
+![Agente funcionando no ambiente publicado](docs/evidencias/01-agente.png)
+
+![Resposta com RAG e Fontes consultadas](docs/evidencias/02-rag-fontes.png)
+
+![Base de Conhecimento com documentos indexados](docs/evidencias/03-base-conhecimento.png)
+
 ![Execução do agente via OCI Compute](docs/evidencias/05-oci-agent-execution.png)
 
+> A evidência 4 (Console OCI — Object Storage) depende de screenshot manual no Console da Oracle Cloud e ainda não está embutida.
 
-A evidência 4 deve ser capturada manualmente no Console da Oracle Cloud.
 
 ## Requisitos do Challenge
 
