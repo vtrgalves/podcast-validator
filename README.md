@@ -66,50 +66,56 @@ suficiente.
 
 ## Arquitetura
 
-```
+Fluxo real de uma pergunta:
+
+```text
 Usuário
    ↓
-VTR Gestão IA — Podcast Strategy Agent
+Frontend VTR Gestão
    ↓
-Backend / Chat
+Backend do agente
    ↓
-Embedding da pergunta
+OCI Compute Gateway  (Oracle Cloud — sa-saopaulo-1)
    ↓
-Busca vetorial — PostgreSQL + pgvector
+RAG / pgvector
    ↓
-Chunks da Base de Conhecimento
+Base de Conhecimento
    ↓
-LLM + contexto documental
+LLM
    ↓
-Resposta fundamentada
-   ↓
-Fontes consultadas
+Resposta fundamentada + fontes
+```
 
+Armazenamento dos documentos originais:
+
+```text
 Documentos originais
-   ↓
-Oracle Cloud Infrastructure
    ↓
 OCI Object Storage
    ↓
-Bucket vtr-podcast-knowledge
+bucket vtr-podcast-knowledge
 ```
+
+> Transparência técnica: o **gateway de execução do agente** roda em **OCI Compute** e os
+> **documentos originais** ficam em **OCI Object Storage**. A geração de embeddings, o banco
+> PostgreSQL + pgvector e o LLM **não** rodam dentro da Oracle Cloud — eles são acionados a
+> partir do gateway hospedado na OCI.
 
 ```mermaid
 flowchart TD
-    U[Usuário] --> A[Podcast Strategy Agent]
-    A --> B[Backend / Chat]
-    B --> G[OCI Compute — vtr-agent-gateway<br/>sa-saopaulo-1]
+    U[Usuário] --> F[Frontend VTR Gestão]
+    F --> B[Backend do agente]
+    B --> G[OCI Compute — vtr-agent-gateway-2<br/>sa-saopaulo-1]
     G --> E[Embedding da pergunta]
     E --> V[(PostgreSQL + pgvector)]
     V --> C[Chunks da Base de Conhecimento]
     C --> L[LLM + contexto documental]
     L --> R[Resposta fundamentada]
     R --> S[Fontes consultadas: documento + página]
-    D[Documentos originais PDF] --> O[Oracle Cloud Infrastructure]
-    O --> OS[OCI Object Storage]
+    D[Documentos originais PDF] --> OS[OCI Object Storage]
     OS --> BK[(Bucket vtr-podcast-knowledge)]
-    BK -.-> C
 ```
+
 
 ## Oracle Cloud Infrastructure — OCI
 
