@@ -53,7 +53,7 @@
   --background: oklch(0.16 0.035 265);
   --foreground: oklch(0.97 0.005 250);
 
-  --surface: oklch(0.20 0.038 265);
+  --surface: oklch(0.2 0.038 265);
   --surface-elevated: oklch(0.235 0.04 265);
 
   --card: oklch(0.215 0.038 265);
@@ -70,7 +70,7 @@
   --secondary-foreground: oklch(0.95 0.005 250);
 
   --muted: oklch(0.26 0.035 265);
-  --muted-foreground: oklch(0.70 0.025 255);
+  --muted-foreground: oklch(0.7 0.025 255);
 
   --accent: oklch(0.72 0.19 155);
   --accent-foreground: oklch(0.15 0.04 265);
@@ -84,24 +84,25 @@
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.30 0.04 265);
+  --border: oklch(0.3 0.04 265);
   --input: oklch(0.26 0.038 265);
   --ring: oklch(0.62 0.22 305);
 
   --chart-1: oklch(0.72 0.19 155);
   --chart-2: oklch(0.62 0.22 305);
-  --chart-3: oklch(0.70 0.20 340);
+  --chart-3: oklch(0.7 0.2 340);
   --chart-4: oklch(0.78 0.16 75);
   --chart-5: oklch(0.65 0.18 245);
 
   /* Premium gradients & shadows */
   --gradient-brand: linear-gradient(135deg, oklch(0.55 0.24 290) 0%, oklch(0.62 0.26 335) 100%);
-  --gradient-hero: radial-gradient(ellipse at top right, oklch(0.35 0.18 295 / 0.45), transparent 55%),
-                   radial-gradient(ellipse at bottom left, oklch(0.30 0.16 335 / 0.30), transparent 55%);
+  --gradient-hero:
+    radial-gradient(ellipse at top right, oklch(0.35 0.18 295 / 0.45), transparent 55%),
+    radial-gradient(ellipse at bottom left, oklch(0.3 0.16 335 / 0.3), transparent 55%);
   --gradient-card: linear-gradient(180deg, oklch(0.23 0.04 265 / 0.7), oklch(0.19 0.04 265 / 0.7));
 
-  --shadow-soft: 0 2px 12px -2px oklch(0 0 0 / 0.20);
-  --shadow-elevated: 0 16px 48px -16px oklch(0.20 0.20 290 / 0.45);
+  --shadow-soft: 0 2px 12px -2px oklch(0 0 0 / 0.2);
+  --shadow-elevated: 0 16px 48px -16px oklch(0.2 0.2 290 / 0.45);
   --shadow-glow: 0 0 60px -8px oklch(0.55 0.24 305 / 0.45);
 }
 
@@ -115,29 +116,41 @@
   * {
     border-color: var(--color-border);
   }
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
-  .bg-gradient-brand { background-image: var(--gradient-brand); }
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand);
+  }
   .text-gradient-brand {
     background-image: var(--gradient-brand);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
-  .bg-hero { background-image: var(--gradient-hero); }
-  .shadow-elevated { box-shadow: var(--shadow-elevated); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .bg-hero {
+    background-image: var(--gradient-hero);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
   .glass {
     background: oklch(0.22 0.04 265 / 0.55);
     backdrop-filter: blur(14px);
