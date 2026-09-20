@@ -164,6 +164,7 @@ function ValidarPage() {
             <Label htmlFor="desc" className="text-sm font-semibold">Descreva seu podcast *</Label>
             <Textarea
               id="desc"
+              aria-describedby="desc-hint desc-counter"
               value={desc}
               onChange={(e) => setDesc(e.target.value.slice(0, MAX_CHARS))}
               placeholder="Ex: Podcast sobre carreira para profissionais de tecnologia com episódios curtos, convidados do mercado e foco em crescimento profissional."
@@ -171,8 +172,8 @@ function ValidarPage() {
               required
             />
             <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              <span>Mínimo 20 caracteres.</span>
-              <span className={desc.length === MAX_CHARS ? "text-warning" : ""}>{desc.length} / {MAX_CHARS}</span>
+              <span id="desc-hint">Mínimo 20 caracteres.</span>
+              <span id="desc-counter" aria-live="polite" className={desc.length === MAX_CHARS ? "text-warning" : ""}>{desc.length} / {MAX_CHARS}</span>
             </div>
           </div>
 
@@ -186,9 +187,9 @@ function ValidarPage() {
               <Input id="audience" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="empreendedores, devs, creators…" className="mt-2 bg-input/60" />
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label className="text-sm font-semibold">Objetivo principal</Label>
+              <Label htmlFor="objective-select" className="text-sm font-semibold">Objetivo principal</Label>
               <Select value={objective} onValueChange={setObjective}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger id="objective-select" aria-label="Objetivo principal" className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {["audiência", "autoridade", "monetização", "comunidade", "vendas", "networking"].map((o) => (
                     <SelectItem key={o} value={o}>{o}</SelectItem>
@@ -197,9 +198,9 @@ function ValidarPage() {
               </Select>
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label className="text-sm font-semibold">Formato</Label>
+              <Label htmlFor="format-select" className="text-sm font-semibold">Formato</Label>
               <Select value={format} onValueChange={setFormat}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger id="format-select" aria-label="Formato do podcast" className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {["entrevista", "solo", "mesa redonda", "storytelling", "videocast"].map((o) => (
                     <SelectItem key={o} value={o}>{o}</SelectItem>
@@ -210,18 +211,21 @@ function ValidarPage() {
           </div>
 
           <div className="rounded-2xl border border-border border-dashed bg-card/60 p-6">
-            <Label className="text-sm font-semibold flex items-center gap-2">
+            <Label htmlFor="attachments-input" className="text-sm font-semibold flex items-center gap-2 cursor-pointer">
               <Upload className="h-4 w-4" /> Anexos opcionais
             </Label>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p id="attachments-hint" className="text-xs text-muted-foreground mt-1">
               Roteiro piloto, media kit, pitch comercial, identidade visual. PDF, DOCX, PPTX ou TXT. Máx 10MB cada, até 3 arquivos.
             </p>
             <input
+              id="attachments-input"
               type="file"
               multiple
               accept=".pdf,.txt,.docx,.pptx"
               onChange={handleUpload}
               disabled={uploading || files.length >= 3}
+              aria-label="Upload de anexos opcionais"
+              aria-describedby="attachments-hint"
               className="mt-3 block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-surface-elevated file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-surface-elevated/80 disabled:opacity-50"
             />
             {files.length > 0 && (
@@ -229,7 +233,12 @@ function ValidarPage() {
                 {files.map((f) => (
                   <li key={f.path} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs">
                     <span className="truncate">{f.name}</span>
-                    <button type="button" onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))} className="text-muted-foreground hover:text-destructive">
+                    <button
+                      type="button"
+                      aria-label={`Remover anexo ${f.name}`}
+                      onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))}
+                      className="text-muted-foreground hover:text-destructive rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </li>
