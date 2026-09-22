@@ -86,7 +86,13 @@ const reportToolSchema = {
         positioning: { type: "string" },
         conceptClarity: { type: "string" },
       },
-      required: ["valueProposition", "targetAudience", "differential", "positioning", "conceptClarity"],
+      required: [
+        "valueProposition",
+        "targetAudience",
+        "differential",
+        "positioning",
+        "conceptClarity",
+      ],
       additionalProperties: false,
     },
     market: {
@@ -98,7 +104,13 @@ const reportToolSchema = {
         growthPotential: { type: "string" },
         marketInterest: { type: "string" },
       },
-      required: ["saturation", "organicDiscovery", "nicheTrend", "growthPotential", "marketInterest"],
+      required: [
+        "saturation",
+        "organicDiscovery",
+        "nicheTrend",
+        "growthPotential",
+        "marketInterest",
+      ],
       additionalProperties: false,
     },
     monetization: {
@@ -110,7 +122,13 @@ const reportToolSchema = {
         commercialFormats: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 8 },
         opportunities: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 8 },
       },
-      required: ["sponsorCategories", "suggestedBrands", "revenueModels", "commercialFormats", "opportunities"],
+      required: [
+        "sponsorCategories",
+        "suggestedBrands",
+        "revenueModels",
+        "commercialFormats",
+        "opportunities",
+      ],
       additionalProperties: false,
     },
     retention: {
@@ -295,7 +313,9 @@ export const getValidation = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: row, error } = await supabaseAdmin
       .from("validations")
-      .select("id, status, report, score, created_at, niche, audience, objective, format, description")
+      .select(
+        "id, status, report, score, created_at, niche, audience, objective, format, description",
+      )
       .eq("id", data.id)
       .single();
     if (error || !row) throw new Error("Validação não encontrada");
