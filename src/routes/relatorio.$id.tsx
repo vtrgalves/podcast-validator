@@ -31,15 +31,17 @@ export const Route = createFileRoute("/relatorio/$id")({
   head: ({ params }) => ({
     meta: [
       { title: "Diagnóstico Estratégico — VTR Gestão IA" },
-      { name: "description", content: "Relatório executivo com mercado, monetização, retenção e roadmap estratégico." },
+      {
+        name: "description",
+        content: "Relatório executivo com mercado, monetização, retenção e roadmap estratégico.",
+      },
       { property: "og:title", content: "Diagnóstico Estratégico — VTR Gestão IA" },
       { property: "og:url", content: `/relatorio/${params.id}` },
       { name: "robots", content: "noindex" },
     ],
     links: [{ rel: "canonical", href: `/relatorio/${params.id}` }],
   }),
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(validationQO(params.id)),
+  loader: ({ params, context }) => context.queryClient.ensureQueryData(validationQO(params.id)),
   component: RelatorioPage,
 });
 
@@ -52,7 +54,13 @@ export const validationQO = (id: string) =>
 function RelatorioPage() {
   const { id } = Route.useParams();
   return (
-    <Suspense fallback={<div className="min-h-screen grid place-items-center text-muted-foreground">Carregando…</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen grid place-items-center text-muted-foreground">
+          Carregando…
+        </div>
+      }
+    >
       <Inner id={id} />
     </Suspense>
   );
@@ -67,7 +75,10 @@ function Inner({ id }: { id: string }) {
         <div>
           <h1 className="font-display text-2xl font-bold">Diagnóstico ainda não disponível</h1>
           <p className="mt-2 text-muted-foreground text-sm">Tente novamente em alguns instantes.</p>
-          <Link to="/validar" className="mt-6 inline-flex rounded-lg bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+          <Link
+            to="/validar"
+            className="mt-6 inline-flex rounded-lg bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+          >
             Nova validação
           </Link>
         </div>
@@ -77,7 +88,11 @@ function Inner({ id }: { id: string }) {
 
   const r = data.report;
   const verdictColor =
-    r.verdict === "Alto Potencial" ? "success" : r.verdict === "Médio Potencial" ? "warning" : "destructive";
+    r.verdict === "Alto Potencial"
+      ? "success"
+      : r.verdict === "Médio Potencial"
+        ? "warning"
+        : "destructive";
 
   const radarData = (Object.keys(r.scores) as Array<keyof ReportScores>).map((k) => ({
     metric: SCORE_LABELS[k].split(" ").slice(0, 2).join(" "),
@@ -88,8 +103,13 @@ function Inner({ id }: { id: string }) {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/60 backdrop-blur-xl bg-background/70 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/"><Logo className="h-8" /></Link>
-          <Link to="/validar" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link to="/">
+            <Logo className="h-8" />
+          </Link>
+          <Link
+            to="/validar"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Nova validação
           </Link>
         </div>
@@ -98,12 +118,18 @@ function Inner({ id }: { id: string }) {
       {/* HERO HEADER */}
       <section className="bg-hero border-b border-border/60">
         <div className="max-w-6xl mx-auto px-6 py-14">
-          <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold">Diagnóstico estratégico executivo</p>
+          <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold">
+            Diagnóstico estratégico executivo
+          </p>
           <div className="mt-3 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">{r.suggestedName}</h1>
+              <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">
+                {r.suggestedName}
+              </h1>
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className={`inline-flex items-center gap-2 rounded-full bg-${verdictColor}/15 text-${verdictColor} px-3 py-1.5 text-xs font-semibold border border-${verdictColor}/30`}>
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full bg-${verdictColor}/15 text-${verdictColor} px-3 py-1.5 text-xs font-semibold border border-${verdictColor}/30`}
+                >
                   <span className={`h-1.5 w-1.5 rounded-full bg-${verdictColor}`} /> {r.verdict}
                 </span>
                 <span className="inline-flex rounded-full bg-surface border border-border px-3 py-1.5 text-xs font-semibold">
@@ -115,7 +141,9 @@ function Inner({ id }: { id: string }) {
               <div className="font-display text-6xl md:text-7xl font-bold text-gradient-brand leading-none tabular-nums">
                 {r.overallScore}
               </div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-2">Score executivo</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-2">
+                Score executivo
+              </p>
             </div>
           </div>
         </div>
@@ -126,14 +154,24 @@ function Inner({ id }: { id: string }) {
         <div className="grid lg:grid-cols-5 gap-6">
           <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6">
             <h2 className="font-display font-semibold text-lg mb-1">Métricas executivas</h2>
-            <p className="text-xs text-muted-foreground mb-4">Visão estratégica multi-dimensional</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Visão estratégica multi-dimensional
+            </p>
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="oklch(0.35 0.04 265)" />
-                  <PolarAngleAxis dataKey="metric" tick={{ fill: "oklch(0.75 0.02 255)", fontSize: 10 }} />
+                  <PolarAngleAxis
+                    dataKey="metric"
+                    tick={{ fill: "oklch(0.75 0.02 255)", fontSize: 10 }}
+                  />
                   <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar dataKey="value" stroke="oklch(0.62 0.22 305)" fill="oklch(0.62 0.22 305)" fillOpacity={0.4} />
+                  <Radar
+                    dataKey="value"
+                    stroke="oklch(0.62 0.22 305)"
+                    fill="oklch(0.62 0.22 305)"
+                    fillOpacity={0.4}
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -168,7 +206,10 @@ function Inner({ id }: { id: string }) {
           </Card>
 
           <Card icon={DollarSign} title="Potencial de Monetização">
-            <TagBlock label="Categorias de patrocinadores" items={r.monetization.sponsorCategories} />
+            <TagBlock
+              label="Categorias de patrocinadores"
+              items={r.monetization.sponsorCategories}
+            />
             <TagBlock label="Marcas sugeridas" items={r.monetization.suggestedBrands} />
             <TagBlock label="Modelos de receita" items={r.monetization.revenueModels} />
             <TagBlock label="Formatos comerciais" items={r.monetization.commercialFormats} />
@@ -229,10 +270,12 @@ function Inner({ id }: { id: string }) {
         {/* CTA */}
         <div className="rounded-3xl border border-primary/30 bg-gradient-to-br from-surface to-card p-10 text-center shadow-elevated">
           <h2 className="font-display text-2xl md:text-3xl font-bold">
-            Pronto para transformar este diagnóstico em <span className="text-gradient-brand">execução</span>?
+            Pronto para transformar este diagnóstico em{" "}
+            <span className="text-gradient-brand">execução</span>?
           </h2>
           <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-            A VTR Gestão estrutura crescimento, monetização e parcerias para creators que querem operar como negócio de mídia.
+            A VTR Gestão estrutura crescimento, monetização e parcerias para creators que querem
+            operar como negócio de mídia.
           </p>
           <LeadDialog
             validationId={id}
@@ -245,7 +288,8 @@ function Inner({ id }: { id: string }) {
         </div>
 
         <p className="text-center text-xs text-muted-foreground py-4">
-          Diagnóstico gerado por inteligência estratégica — não substitui consultoria humana especializada.
+          Diagnóstico gerado por inteligência estratégica — não substitui consultoria humana
+          especializada.
         </p>
       </main>
     </div>
@@ -267,9 +311,23 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
   );
 }
 
-function Card({ icon: Icon, title, children, wide, accent }: { icon: typeof Layers; title: string; children: React.ReactNode; wide?: boolean; accent?: boolean }) {
+function Card({
+  icon: Icon,
+  title,
+  children,
+  wide,
+  accent,
+}: {
+  icon: typeof Layers;
+  title: string;
+  children: React.ReactNode;
+  wide?: boolean;
+  accent?: boolean;
+}) {
   return (
-    <div className={`rounded-2xl border ${accent ? "border-primary/40 shadow-glow" : "border-border"} bg-card p-6 ${wide ? "md:col-span-2" : ""}`}>
+    <div
+      className={`rounded-2xl border ${accent ? "border-primary/40 shadow-glow" : "border-border"} bg-card p-6 ${wide ? "md:col-span-2" : ""}`}
+    >
       <div className="flex items-center gap-3 mb-5">
         <div className="h-9 w-9 rounded-lg bg-gradient-brand grid place-items-center shadow-soft">
           <Icon className="h-4.5 w-4.5 text-primary-foreground" />
@@ -284,7 +342,9 @@ function Card({ icon: Icon, title, children, wide, accent }: { icon: typeof Laye
 function Row({ label, v }: { label: string; v: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+        {label}
+      </p>
       <p className="text-sm text-foreground/90 mt-1 leading-relaxed">{v}</p>
     </div>
   );
@@ -293,10 +353,15 @@ function Row({ label, v }: { label: string; v: string }) {
 function TagBlock({ label, items }: { label: string; items: string[] }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">{label}</p>
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+        {label}
+      </p>
       <div className="flex flex-wrap gap-1.5">
         {items.map((t, i) => (
-          <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-surface-elevated border border-border/60 text-foreground/85">
+          <span
+            key={i}
+            className="text-xs px-2.5 py-1 rounded-md bg-surface-elevated border border-border/60 text-foreground/85"
+          >
             {t}
           </span>
         ))}
