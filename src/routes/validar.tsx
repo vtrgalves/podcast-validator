@@ -229,7 +229,12 @@ function ValidarPage() {
                 {files.map((f) => (
                   <li key={f.path} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs">
                     <span className="truncate">{f.name}</span>
-                    <button type="button" onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))} className="text-muted-foreground hover:text-destructive">
+                    <button
+                      type="button"
+                      aria-label={`Remover anexo ${f.name}`}
+                      onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </li>
