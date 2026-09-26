@@ -130,7 +130,13 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
           <Link to="/">
             <Logo />
           </Link>
-          <Button size="sm" className="ml-auto" onClick={() => create.mutate()}>
+          <Button
+            size="sm"
+            className="ml-auto"
+            onClick={() => create.mutate()}
+            aria-label="Nova conversa"
+            title="Nova conversa"
+          >
             <MessageSquarePlus className="h-4 w-4" />
           </Button>
         </div>
