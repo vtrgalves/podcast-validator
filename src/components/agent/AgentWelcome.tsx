@@ -56,8 +56,9 @@ export function AgentWelcome({ onPick }: { onPick: (prompt: string) => void }) {
           <button
             key={s.prompt}
             type="button"
+            aria-label={`Pergunta sugerida: ${s.prompt}`}
             onClick={() => onPick(s.prompt)}
-            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-surface/60 p-4 text-left transition-colors hover:border-primary/50 hover:bg-surface-elevated"
+            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-surface/60 p-4 text-left transition-colors hover:border-primary/50 hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <s.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span className="text-sm font-medium">{s.prompt}</span>
