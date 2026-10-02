@@ -73,6 +73,8 @@ export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 
 export const ConversationScrollButton = ({
   className,
+  "aria-label": ariaLabel = "Rolar para o final da conversa",
+  title = "Rolar para o final da conversa",
   ...props
 }: ConversationScrollButtonProps) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
@@ -84,6 +86,8 @@ export const ConversationScrollButton = ({
   return (
     !isAtBottom && (
       <Button
+        aria-label={ariaLabel}
+        title={title}
         className={cn(
           "absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full dark:bg-background dark:hover:bg-muted",
           className
@@ -152,6 +156,8 @@ export const ConversationDownload = ({
 
   return (
     <Button
+      aria-label={props["aria-label"] ?? "Baixar conversa"}
+      title={props.title ?? "Baixar conversa"}
       className={cn(
         "absolute top-4 right-4 rounded-full dark:bg-background dark:hover:bg-muted",
         className
