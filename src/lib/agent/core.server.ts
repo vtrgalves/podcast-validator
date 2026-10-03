@@ -8,12 +8,7 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { adminClient, retrieveChunks, type RetrievedChunk } from "./retrieval.server";
-import {
-  ociGatewayConfigured,
-  retrieveViaOci,
-  type OciExecution,
-} from "./oci-gateway.server";
-
+import { ociGatewayConfigured, retrieveViaOci, type OciExecution } from "./oci-gateway.server";
 
 export type AgentEnv = {
   apiKey: string;
@@ -31,7 +26,6 @@ export type AgentSource = {
   /** Trecho efetivamente enviado ao modelo (evidência do RAG na UI). */
   excerpt: string;
 };
-
 
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-sol";
 export const DEFAULT_EMBEDDING_MODEL = "google/gemini-embedding-2";
@@ -159,7 +153,6 @@ export function toSources(chunks: RetrievedChunk[]): AgentSource[] {
       pageEnd: c.page_end,
       similarity: Number(c.similarity.toFixed(3)),
       excerpt: c.content.trim().slice(0, 900),
-
     });
   }
   return out;
@@ -181,13 +174,13 @@ export function usedSources(sources: AgentSource[], answer: string): AgentSource
   const filtered = sources.filter((s) => {
     const titleWord = s.title.split(/\s+/).slice(0, 3).join(" ").toLowerCase();
     const titleCited = section.toLowerCase().includes(titleWord.slice(0, 12));
-    const pageCited = s.page == null || cited.has(s.page) || (s.pageEnd ? cited.has(s.pageEnd) : false);
+    const pageCited =
+      s.page == null || cited.has(s.page) || (s.pageEnd ? cited.has(s.pageEnd) : false);
     return titleCited && pageCited;
   });
 
   return filtered.length ? filtered : sources;
 }
-
 
 /** Executa o agente (RAG + LLM) e devolve uma Response com o stream de UI messages. */
 export async function runAgentStream(opts: {
@@ -224,7 +217,6 @@ export async function runAgentStream(opts: {
   const chunks = retrieval.chunks;
   const execution = retrieval.execution;
 
-
   const kbBlock = docs.length
     ? `BASE DE CONHECIMENTO DISPONÍVEL (documentos indexados):\n${docs
         .map(
@@ -257,7 +249,5 @@ export async function runAgentStream(opts: {
       part.type === "finish"
         ? { sources: usedSources(sources, answer), ...(execution ? { execution } : {}) }
         : undefined,
-
   });
-
 }
