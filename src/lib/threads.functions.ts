@@ -23,7 +23,6 @@ export type StoredMessage = {
   metadata?: { sources?: StoredSource[] };
 };
 
-
 export const listThreads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -91,7 +90,6 @@ export const getThreadMessages = createServerFn({ method: "GET" })
       metadata: { sources: (r.sources ?? []) as StoredSource[] },
     })) as StoredMessage[];
   });
-
 
 export const saveMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
