@@ -50,7 +50,12 @@ function sourcesOf(message: UIMessage): AgentSource[] {
   return Array.isArray(meta?.sources) ? meta.sources : [];
 }
 
-type OciExecution = { gateway: string; region: string; latencyMs: number; invocation: number | null };
+type OciExecution = {
+  gateway: string;
+  region: string;
+  latencyMs: number;
+  invocation: number | null;
+};
 
 function executionOf(message: UIMessage): OciExecution | null {
   const meta = message.metadata as { execution?: OciExecution } | undefined;
@@ -68,7 +73,6 @@ function OciBadge({ execution }: { execution: OciExecution | null }) {
     </p>
   );
 }
-
 
 function pageLabel(s: AgentSource) {
   if (s.page == null) return "página não informada";
@@ -119,8 +123,6 @@ function SourceList({ sources }: { sources: AgentSource[] }) {
     </div>
   );
 }
-
-
 
 export function ChatWindow({
   threadId,
@@ -215,7 +217,6 @@ export function ChatWindow({
                       <MessageResponse>{textOf(message)}</MessageResponse>
                       <SourceList sources={sourcesOf(message)} />
                       <OciBadge execution={executionOf(message)} />
-
                     </>
                   ) : (
                     <span className="whitespace-pre-wrap">{textOf(message)}</span>
