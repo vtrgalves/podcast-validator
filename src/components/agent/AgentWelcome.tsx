@@ -26,11 +26,7 @@ const SUGGESTIONS = [
 export function AgentWelcome({ onPick }: { onPick: (prompt: string) => void }) {
   return (
     <div className="flex flex-col items-center py-10 text-center">
-      <img
-        src={logoMark}
-        alt="VTR Gestão IA"
-        className="h-14 w-14 rounded-2xl shadow-elevated"
-      />
+      <img src={logoMark} alt="VTR Gestão IA" className="h-14 w-14 rounded-2xl shadow-elevated" />
       <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-3xl">
         Podcast Strategy Agent
       </h1>
