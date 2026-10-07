@@ -7,6 +7,9 @@
  */
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { Client } from "langsmith";
+import { traceable } from "langsmith/traceable";
+import { LangSmithTelemetry } from "langsmith/experimental/vercel";
 import { adminClient, retrieveChunks, type RetrievedChunk } from "./retrieval.server";
 import {
   ociGatewayConfigured,
@@ -189,6 +192,16 @@ export function usedSources(sources: AgentSource[], answer: string): AgentSource
 }
 
 
+/** Cliente LangSmith (observabilidade). Ativo apenas com LANGSMITH_API_KEY. */
+function langsmith() {
+  const apiKey = process.env["LANGSMITH_API_KEY"];
+  if (!apiKey || process.env["LANGSMITH_TRACING"] === "false") return null;
+  return {
+    client: new Client({ apiKey }),
+    projectName: process.env["LANGSMITH_PROJECT"] || "vtr-podcast-strategy-agent",
+  };
+}
+
 /** Executa o agente (RAG + LLM) e devolve uma Response com o stream de UI messages. */
 export async function runAgentStream(opts: {
   messages: UIMessage[];
@@ -220,7 +233,33 @@ export async function runAgentStream(opts: {
     }
   }
 
-  const [retrieval, docs] = await Promise.all([retrieve(), listIndexedDocuments().catch(() => [])]);
+  const ls = langsmith();
+  const tracedRetrieve = ls
+    ? traceable(retrieve, {
+        name: "rag_retrieve",
+        run_type: "retriever",
+        client: ls.client,
+        project_name: ls.projectName,
+        metadata: { question },
+        processOutputs: (o) => ({
+          execution: o.execution,
+          documents: (o.chunks as RetrievedChunk[]).map((c) => ({
+            page_content: c.content,
+            type: "Document",
+            metadata: {
+              title: c.document_title,
+              page: c.page_number,
+              similarity: c.similarity,
+            },
+          })),
+        }),
+      })
+    : retrieve;
+
+  const [retrieval, docs] = await Promise.all([
+    tracedRetrieve(),
+    listIndexedDocuments().catch(() => []),
+  ]);
   const chunks = retrieval.chunks;
   const execution = retrieval.execution;
 
@@ -246,6 +285,22 @@ export async function runAgentStream(opts: {
     system: `${AGENT_SYSTEM_PROMPT}\n\n${kbBlock}\n\n${buildContextBlock(chunks)}`,
     messages: await convertToModelMessages(windowed),
     providerOptions: { "lovable-ai-gateway": { reasoningEffort: "none" } },
+    ...(ls
+      ? {
+          telemetry: {
+            functionId: "podcast-strategy-agent",
+            integrations: LangSmithTelemetry({
+              name: "podcast_strategy_agent",
+              client: ls.client,
+              projectName: ls.projectName,
+              metadata: { chunks: chunks.length, viaOci: Boolean(execution) },
+            }),
+          },
+        }
+      : {}),
+    onFinish: async () => {
+      if (ls) await ls.client.awaitPendingTraceBatches().catch(() => {});
+    },
     onChunk: ({ chunk }) => {
       if (chunk.type === "text-delta") answer += chunk.text;
     },
