@@ -229,7 +229,13 @@ function ValidarPage() {
                 {files.map((f) => (
                   <li key={f.path} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs">
                     <span className="truncate">{f.name}</span>
-                    <button type="button" onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))} className="text-muted-foreground hover:text-destructive">
+                    <button
+                      type="button"
+                      aria-label={`Remover arquivo ${f.name}`}
+                      title={`Remover ${f.name}`}
+                      onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))}
+                      className="p-1 text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md transition-colors"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </li>
