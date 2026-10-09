@@ -19,6 +19,7 @@ OPENAI_API_KEY=your-openai-key                        # For locally executed Ope
 ```
 
 Authenticate with a saved CLI profile (preferred):
+
 ```bash
 langsmith auth login
 langsmith auth info
@@ -40,20 +41,24 @@ client.read_dataset(dataset_name="My Dataset")
 ```
 
 Python Dependencies
+
 ```bash
 pip install langsmith langchain-openai python-dotenv
 ```
 
 CLI Tool
+
 ```bash
 curl -fsSL https://cli.langsmith.com/install.sh | sh
 langsmith self-update
 ```
 
 JavaScript Dependencies
+
 ```bash
 npm install langsmith openai
 ```
+
 </setup>
 
 <cli_feedback>
@@ -75,9 +80,11 @@ Do not retry a failed or rate-limited feedback submission, switch credentials/en
 </cli_feedback>
 
 <crucial_requirement>
+
 ## Golden Rule: Inspect Before You Implement
 
 **CRITICAL:** Before writing ANY evaluator or extraction logic, you MUST:
+
 1. **Run your agent** on sample inputs and capture the actual output
 2. **Inspect the output** - print it, query LangSmith traces, understand the exact structure
 3. **Only then** write code that processes that output
@@ -86,39 +93,45 @@ Output structures vary significantly by framework, agent type, and configuration
 </crucial_requirement>
 
 <evaluator_format>
+
 ## Offline vs Online Evaluators
 
 **Offline Evaluators** (attached to datasets):
+
 - Function signature: `(run, example)` - receives both run outputs and dataset example
 - Use case: Comparing agent outputs to expected values in a dataset
 - Upload with: `--dataset "Dataset Name"`
 
 **Online Evaluators** (attached to projects):
+
 - Function signature: `(run)` - receives only run outputs, NO example parameter
 - Use case: Real-time quality checks on production runs (no reference data)
 - Upload with: `--project "Project Name"`
 
 **CRITICAL - Return Format:**
+
 - Each evaluator returns **ONE metric only**. For multiple metrics, create multiple evaluator functions.
 - Do NOT return `{"metric_name": value}` or lists of metrics - this will error.
 
 **CRITICAL - Local vs Uploaded Differences:**
 
-| | Local `evaluate()` | Uploaded to LangSmith |
-|---|---|---|
-| **Column name** | Python: auto-derived from function name. TypeScript: must include `key` field or column is untitled | Comes from evaluator name set at upload time. Do NOT include `key` — it creates a duplicate column |
-| **Python `run` type** | `RunTree` object → `run.outputs` (attribute) | `dict` → `run["outputs"]` (subscript). Handle both: `run.outputs if hasattr(run, "outputs") else run.get("outputs", {})` |
-| **TypeScript `run` type** | Always attribute access: `run.outputs?.field` | Always attribute access: `run.outputs?.field` |
-| **Python return** | `{"score": value, "comment": "..."}` | `{"score": value, "comment": "..."}` |
-| **TypeScript return** | `{ key: "name", score: value, comment: "..." }` | `{ score: value, comment: "..." }` |
-</evaluator_format>
+|                           | Local `evaluate()`                                                                                  | Uploaded to LangSmith                                                                                                    |
+| ------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Column name**           | Python: auto-derived from function name. TypeScript: must include `key` field or column is untitled | Comes from evaluator name set at upload time. Do NOT include `key` — it creates a duplicate column                       |
+| **Python `run` type**     | `RunTree` object → `run.outputs` (attribute)                                                        | `dict` → `run["outputs"]` (subscript). Handle both: `run.outputs if hasattr(run, "outputs") else run.get("outputs", {})` |
+| **TypeScript `run` type** | Always attribute access: `run.outputs?.field`                                                       | Always attribute access: `run.outputs?.field`                                                                            |
+| **Python return**         | `{"score": value, "comment": "..."}`                                                                | `{"score": value, "comment": "..."}`                                                                                     |
+| **TypeScript return**     | `{ key: "name", score: value, comment: "..." }`                                                     | `{ score: value, comment: "..." }`                                                                                       |
+| </evaluator_format>       |
 
 <evaluator_types>
+
 - **LLM as Judge** - Uses an LLM to grade outputs. Best for subjective quality (accuracy, helpfulness, relevance).
 - **Custom Code** - Deterministic logic. Best for objective checks (exact match, trajectory validation, format compliance).
-</evaluator_types>
+  </evaluator_types>
 
 <llm_judge>
+
 ## LLM as Judge Evaluators
 
 Use `langsmith evaluator create-llm` to create a server-managed LLM-as-judge run rule. It requires `--model-config` plus exactly one target (`--dataset` or `--project`). Supply either `--prompt` and `--schema` JSON files or a Prompt Hub reference with `--hub-ref`.
@@ -193,17 +206,18 @@ from typing import TypedDict, Annotated
 from langchain_openai import ChatOpenAI
 
 class Grade(TypedDict):
-    reasoning: Annotated[str, ..., "Explain your reasoning"]
-    is_accurate: Annotated[bool, ..., "True if response is accurate"]
+reasoning: Annotated[str, ..., "Explain your reasoning"]
+is_accurate: Annotated[bool, ..., "True if response is accurate"]
 
 judge = ChatOpenAI(model="gpt-4o-mini", temperature=0).with_structured_output(Grade, method="json_schema", strict=True)
 
 async def accuracy_evaluator(run, example):
-    run_outputs = run.outputs if hasattr(run, "outputs") else run.get("outputs", {}) or {}
-    example_outputs = example.outputs if hasattr(example, "outputs") else example.get("outputs", {}) or {}
-    grade = await judge.ainvoke([{"role": "user", "content": f"Expected: {example_outputs}\nActual: {run_outputs}\nIs this accurate?"}])
-    return {"score": 1 if grade["is_accurate"] else 0, "comment": grade["reasoning"]}
-```
+run_outputs = run.outputs if hasattr(run, "outputs") else run.get("outputs", {}) or {}
+example_outputs = example.outputs if hasattr(example, "outputs") else example.get("outputs", {}) or {}
+grade = await judge.ainvoke([{"role": "user", "content": f"Expected: {example_outputs}\nActual: {run_outputs}\nIs this accurate?"}])
+return {"score": 1 if grade["is_accurate"] else 0, "comment": grade["reasoning"]}
+
+````
 </python>
 
 <typescript>
@@ -229,14 +243,17 @@ async function accuracyEvaluator(run, example) {
     const grade = JSON.parse(response.choices[0].message.content);
     return { score: grade.is_accurate ? 1 : 0, comment: grade.reasoning };
 }
-```
+````
+
 </typescript>
 </llm_judge>
 
 <code_evaluators>
+
 ## Custom Code Evaluators
 
 **Before writing an evaluator:**
+
 1. Inspect your dataset to understand expected field names (see Golden Rule above)
 2. Test your run function and verify its output structure matches the dataset schema
 3. Query LangSmith traces to debug any mismatches
@@ -274,6 +291,7 @@ function trajectoryEvaluator(run, example) {
 </code_evaluators>
 
 <run_functions>
+
 ## Defining Run Functions
 
 Run functions execute your agent and return outputs for evaluation.
@@ -282,11 +300,12 @@ Run functions execute your agent and return outputs for evaluation.
 Before writing evaluators, you MUST test your run function and inspect the actual output structure. Output shapes vary by framework, agent type, and configuration.
 
 **Debugging workflow:**
+
 1. Run your agent once on sample input
 2. Query the trace to see the execution structure
 3. Print the raw output and verify against trace to output contains the right data
 4. Adjust the run function as needed
-4. Verify your output matches your dataset schema
+5. Verify your output matches your dataset schema
 
 **Try your hardest to match your run function output to your dataset schema.** This makes evaluators simple and reusable. If matching isn't possible, your evaluator must know how to extract and compare the right fields from each side.
 
@@ -361,10 +380,12 @@ Evaluators uploaded to a dataset **automatically run** when you run experiments 
 Uploaded evaluators run in a sandboxed environment with very limited package access. Only use built-in/standard library imports, and place all imports **inside** the evaluator function body. For dataset (offline) evaluators, prefer running locally with `evaluate(evaluators=[...])` first — this gives you full package access.
 
 **IMPORTANT - Code vs Structured Evaluators:**
+
 - **Code evaluators:** Upload with `langsmith evaluator upload`. They run in a limited environment without external packages and work well for deterministic logic.
 - **Structured evaluators (LLM-as-Judge):** Create with `langsmith evaluator create-llm` using a model config and either prompt/schema files or `--hub-ref`.
 
 **IMPORTANT - Choose the right target:**
+
 - `--dataset`: Offline evaluator with `(run, example)` signature - for comparing to expected values
 - `--project`: Online evaluator with `(run)` signature - for real-time quality checks
 
@@ -407,6 +428,7 @@ langsmith evaluator delete "Trajectory Match"
 ```
 
 **IMPORTANT - Safety Prompts:**
+
 - `upload --replace` and `create-llm --replace` patch the matching rule and prompt first
 - `delete NAME` deletes **every rule in the workspace with that display name**, potentially across multiple targets; run `get NAME` first and inspect all matches
 - **NEVER use `--yes` flag unless the user explicitly requests it**
@@ -424,6 +446,7 @@ Verify only the lifecycle operations the user requested:
 </upload>
 
 <best_practices>
+
 1. **Use structured output for LLM judges** - More reliable than parsing free-text
 2. **Match evaluator to dataset type**
    - Final Response → LLM as Judge for quality
@@ -433,9 +456,10 @@ Verify only the lifecycle operations the user requested:
 5. **Choose the right language**
    - Python: Use for Python agents, langchain integrations
    - JavaScript: Use for TypeScript/Node.js agents
-</best_practices>
+     </best_practices>
 
 <running_evaluations>
+
 ## Running Evaluations
 
 **Uploaded evaluators** auto-run when you run experiments - no code needed. **Local evaluators** are passed directly for development/testing.
@@ -445,11 +469,14 @@ Verify only the lifecycle operations the user requested:
 from langsmith import evaluate
 
 # Uploaded evaluators run automatically
+
 results = evaluate(run_agent, data="My Dataset", experiment_prefix="eval-v1")
 
 # Or pass local evaluators for testing
+
 results = evaluate(run_agent, data="My Dataset", evaluators=[my_evaluator], experiment_prefix="eval-v1")
-```
+
+````
 </python>
 
 <typescript>
@@ -468,7 +495,8 @@ const results = await evaluate(runAgent, {
   evaluators: [myEvaluator],
   experimentPrefix: "eval-v1",
 });
-```
+````
+
 </typescript>
 </running_evaluations>
 
@@ -482,9 +510,11 @@ const results = await evaluate(runAgent, {
 **Field name mismatch:** Your run function output must match dataset schema exactly. Inspect dataset first with `client.read_example(example_id)`.
 
 **RunTree vs dict (Python only):** Local `evaluate()` passes `RunTree`, uploaded evaluators receive `dict`. Handle both:
+
 ```python
 run_outputs = run.outputs if hasattr(run, "outputs") else run.get("outputs", {}) or {}
 ```
+
 TypeScript always uses attribute access: `run.outputs?.field`
 </troubleshooting>
 
