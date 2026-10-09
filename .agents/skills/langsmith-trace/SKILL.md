@@ -17,6 +17,7 @@ LANGSMITH_WORKSPACE_ID=your-workspace-id              # Optional: for org-scoped
 ```
 
 Authentication is REQUIRED: either set the `LANGSMITH_API_KEY` environment variable, or pass the `--api-key` flag to CLI commands (preferred):
+
 ```bash
 langsmith trace list --project my-project --api-key $LANGSMITH_API_KEY
 ```
@@ -24,9 +25,11 @@ langsmith trace list --project my-project --api-key $LANGSMITH_API_KEY
 **IMPORTANT:** Always check the environment variables or `.env` file for `LANGSMITH_PROJECT` before querying or interacting with LangSmith. This tells you which project contains the relevant traces and data. If the LangSmith project is not available, use your best judgement to identify the right one.
 
 CLI Tool
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/langchain-ai/langsmith-cli/main/scripts/install.sh | sh
 ```
+
 </setup>
 
 <cli_feedback>
@@ -57,9 +60,10 @@ export OPENAI_API_KEY=<your-openai-api-key>  # or your LLM provider's key
 ```
 
 Optional variables:
+
 - `LANGSMITH_PROJECT` - specify project name (defaults to "default")
 - `LANGCHAIN_CALLBACKS_BACKGROUND=false` - use for serverless to ensure traces complete before function exit (Python)
-</trace_langchain_oss>
+  </trace_langchain_oss>
 
 <trace_other_frameworks>
 For non-LangChain apps, if the framework has native OpenTelemetry support, use LangSmith's OpenTelemetry integration.
@@ -77,26 +81,28 @@ client = wrap_openai(OpenAI())
 
 @traceable
 def my_llm_pipeline(question: str) -> str:
-    resp = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": question}],
-    )
-    return resp.choices[0].message.content
+resp = client.chat.completions.create(
+model="gpt-4o-mini",
+messages=[{"role": "user", "content": question}],
+)
+return resp.choices[0].message.content
 
 # Nested tracing example
+
 @traceable
 def rag_pipeline(question: str) -> str:
-    docs = retrieve_docs(question)
-    return generate_answer(question, docs)
+docs = retrieve_docs(question)
+return generate_answer(question, docs)
 
 @traceable(name="retrieve_docs")
 def retrieve_docs(query: str) -> list[str]:
-    return docs
+return docs
 
 @traceable(name="generate_answer")
 def generate_answer(question: str, docs: list[str]) -> str:
-    return client.chat.completions.create(...)
-```
+return client.chat.completions.create(...)
+
+````
 </python>
 
 <typescript>
@@ -133,15 +139,17 @@ const ragPipeline = traceable(async (question: string): Promise<string> => {
   const docs = await retrieveDocs(question);
   return await generateAnswer(question, docs);
 }, { name: "rag_pipeline" });
-```
+````
+
 </typescript>
 
 Best Practices:
+
 - **Apply traceable to all nested functions** you want visible in LangSmith
 - **Wrapped clients auto-trace all calls** — `wrap_openai()`/`wrapOpenAI()` records every LLM call
 - **Name your traces** for easier filtering
 - **Add metadata** for searchability
-</trace_other_frameworks>
+  </trace_other_frameworks>
 
 <traces_vs_runs>
 Use the `langsmith` CLI to query trace data.
@@ -201,13 +209,13 @@ langsmith
 
 **Key differences:**
 
-| | `traces *` | `runs *` |
-|---|---|---|
-| Filters apply to | Root run only | Any matching run |
-| `--run-type` | Not available | Available |
-| Returns | Full hierarchy | Flat list |
-| Export output | Directory (one file/trace) | Single file |
-</command_structure>
+|                      | `traces *`                 | `runs *`         |
+| -------------------- | -------------------------- | ---------------- |
+| Filters apply to     | Root run only              | Any matching run |
+| `--run-type`         | Not available              | Available        |
+| Returns              | Full hierarchy             | Flat list        |
+| Export output        | Directory (one file/trace) | Single file      |
+| </command_structure> |
 
 <querying_traces>
 Query traces using the `langsmith` CLI. Commands are language-agnostic.
@@ -239,12 +247,14 @@ langsmith trace list --error --last-n-minutes 60 --api-key $LANGSMITH_API_KEY   
 # List specific run types (flat list)
 langsmith run list --run-type llm --limit 20 --api-key $LANGSMITH_API_KEY
 ```
+
 </querying_traces>
 
 <filters>
 All commands support these filters (all AND together):
 
 **Basic filters:**
+
 - `--trace-ids abc,def` - Filter to specific traces
 - `--limit N` - Max results
 - `--project NAME` - Project name
@@ -254,22 +264,26 @@ All commands support these filters (all AND together):
 - `--name PATTERN` - Name contains (case-insensitive)
 
 **Performance filters:**
+
 - `--min-latency SECONDS` - Minimum latency (e.g., `5` for >= 5s)
 - `--max-latency SECONDS` - Maximum latency
 - `--min-tokens N` - Minimum total tokens
 - `--tags tag1,tag2` - Has any of these tags
 
 **Advanced filter:**
+
 - `--filter QUERY` - Raw LangSmith filter query for complex cases (feedback, metadata, etc.)
 
 ```bash
 # Filter traces by feedback score using raw LangSmith query
 langsmith trace list --filter 'and(eq(feedback_key, "correctness"), gte(feedback_score, 0.8))' --api-key $LANGSMITH_API_KEY
 ```
+
 </filters>
 
 <export_format>
 Export creates `.jsonl` files (one run per line) with these fields:
+
 ```json
 {"run_id": "...", "trace_id": "...", "name": "...", "run_type": "...", "parent_run_id": "...", "inputs": {...}, "outputs": {...}}
 ```

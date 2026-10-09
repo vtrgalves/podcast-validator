@@ -28,9 +28,16 @@ export const Route = createFileRoute("/validar")({
   head: () => ({
     meta: [
       { title: "Validar Podcast — VTR Gestão IA" },
-      { name: "description", content: "Descreva seu podcast e receba um diagnóstico estratégico executivo em menos de 15 segundos." },
+      {
+        name: "description",
+        content:
+          "Descreva seu podcast e receba um diagnóstico estratégico executivo em menos de 15 segundos.",
+      },
       { property: "og:title", content: "Validar Podcast — VTR Gestão IA" },
-      { property: "og:description", content: "Diagnóstico estratégico premium para sua ideia de podcast." },
+      {
+        property: "og:description",
+        content: "Diagnóstico estratégico premium para sua ideia de podcast.",
+      },
       { property: "og:url", content: "/validar" },
     ],
     links: [{ rel: "canonical", href: "/validar" }],
@@ -110,7 +117,6 @@ function ValidarPage() {
     }
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (desc.trim().length < 20) {
@@ -141,8 +147,13 @@ function ValidarPage() {
     <div className="min-h-screen bg-background bg-hero">
       <header className="border-b border-border/60 backdrop-blur-xl bg-background/70 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/"><Logo className="h-8" /></Link>
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link to="/">
+            <Logo className="h-8" />
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Início
           </Link>
         </div>
@@ -150,7 +161,9 @@ function ValidarPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-14">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">Diagnóstico estratégico</p>
+          <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">
+            Diagnóstico estratégico
+          </p>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
             Conte sobre o podcast que você quer validar.
           </h1>
@@ -161,7 +174,9 @@ function ValidarPage() {
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-7">
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <Label htmlFor="desc" className="text-sm font-semibold">Descreva seu podcast *</Label>
+            <Label htmlFor="desc" className="text-sm font-semibold">
+              Descreva seu podcast *
+            </Label>
             <Textarea
               id="desc"
               value={desc}
@@ -172,26 +187,55 @@ function ValidarPage() {
             />
             <div className="mt-2 flex justify-between text-xs text-muted-foreground">
               <span>Mínimo 20 caracteres.</span>
-              <span className={desc.length === MAX_CHARS ? "text-warning" : ""}>{desc.length} / {MAX_CHARS}</span>
+              <span className={desc.length === MAX_CHARS ? "text-warning" : ""}>
+                {desc.length} / {MAX_CHARS}
+              </span>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label htmlFor="niche" className="text-sm font-semibold">Nicho</Label>
-              <Input id="niche" value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="negócios, tecnologia, lifestyle…" className="mt-2 bg-input/60" />
+              <Label htmlFor="niche" className="text-sm font-semibold">
+                Nicho
+              </Label>
+              <Input
+                id="niche"
+                value={niche}
+                onChange={(e) => setNiche(e.target.value)}
+                placeholder="negócios, tecnologia, lifestyle…"
+                className="mt-2 bg-input/60"
+              />
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label htmlFor="audience" className="text-sm font-semibold">Público-alvo</Label>
-              <Input id="audience" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="empreendedores, devs, creators…" className="mt-2 bg-input/60" />
+              <Label htmlFor="audience" className="text-sm font-semibold">
+                Público-alvo
+              </Label>
+              <Input
+                id="audience"
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                placeholder="empreendedores, devs, creators…"
+                className="mt-2 bg-input/60"
+              />
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
               <Label className="text-sm font-semibold">Objetivo principal</Label>
               <Select value={objective} onValueChange={setObjective}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger className="mt-2 bg-input/60">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
                 <SelectContent>
-                  {["audiência", "autoridade", "monetização", "comunidade", "vendas", "networking"].map((o) => (
-                    <SelectItem key={o} value={o}>{o}</SelectItem>
+                  {[
+                    "audiência",
+                    "autoridade",
+                    "monetização",
+                    "comunidade",
+                    "vendas",
+                    "networking",
+                  ].map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -199,10 +243,14 @@ function ValidarPage() {
             <div className="rounded-xl border border-border bg-card p-5">
               <Label className="text-sm font-semibold">Formato</Label>
               <Select value={format} onValueChange={setFormat}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger className="mt-2 bg-input/60">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
                 <SelectContent>
                   {["entrevista", "solo", "mesa redonda", "storytelling", "videocast"].map((o) => (
-                    <SelectItem key={o} value={o}>{o}</SelectItem>
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -214,7 +262,8 @@ function ValidarPage() {
               <Upload className="h-4 w-4" /> Anexos opcionais
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
-              Roteiro piloto, media kit, pitch comercial, identidade visual. PDF, DOCX, PPTX ou TXT. Máx 10MB cada, até 3 arquivos.
+              Roteiro piloto, media kit, pitch comercial, identidade visual. PDF, DOCX, PPTX ou TXT.
+              Máx 10MB cada, até 3 arquivos.
             </p>
             <input
               type="file"
@@ -227,9 +276,18 @@ function ValidarPage() {
             {files.length > 0 && (
               <ul className="mt-3 space-y-1.5">
                 {files.map((f) => (
-                  <li key={f.path} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs">
+                  <li
+                    key={f.path}
+                    className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs"
+                  >
                     <span className="truncate">{f.name}</span>
-                    <button type="button" onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))} className="text-muted-foreground hover:text-destructive">
+                    <button
+                      type="button"
+                      aria-label={`Remover anexo ${f.name}`}
+                      title={`Remover ${f.name}`}
+                      onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))}
+                      className="rounded-sm text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </li>
@@ -244,9 +302,18 @@ function ValidarPage() {
               disabled={submitting || desc.trim().length < 20}
               className="bg-success text-success-foreground hover:bg-success/90 h-12 px-7 text-sm font-semibold shadow-elevated flex-1"
             >
-              {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Iniciando…</> : "Gerar diagnóstico estratégico"}
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Iniciando…
+                </>
+              ) : (
+                "Gerar diagnóstico estratégico"
+              )}
             </Button>
-            <Link to="/" className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-6 h-12 text-sm font-medium hover:bg-surface-elevated">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-6 h-12 text-sm font-medium hover:bg-surface-elevated"
+            >
               Cancelar
             </Link>
           </div>

@@ -28,8 +28,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "VTR Gestão IA — Podcast Strategy Validator" },
       {
         property: "og:description",
-        content:
-          "Plataforma premium de validação estratégica para podcasts e creator economy.",
+        content: "Plataforma premium de validação estratégica para podcasts e creator economy.",
       },
       { property: "og:url", content: "/" },
     ],
@@ -39,18 +38,54 @@ export const Route = createFileRoute("/")({
 });
 
 const problems = [
-  { icon: Target, title: "Não sei se meu podcast tem diferencial.", body: "Você está prestes a entrar em um mercado com milhares de shows. Sem clareza de proposta, vira ruído." },
-  { icon: AlertTriangle, title: "Tenho medo de entrar num nicho saturado.", body: "Nichos lotados exigem ângulo único e budget de mídia que a maioria não tem." },
-  { icon: DollarSign, title: "Não sei como monetizar.", body: "Audiência sem modelo comercial é hobby. Receita exige arquitetura desde o dia zero." },
-  { icon: Sparkles, title: "Não sei como conseguir patrocinadores.", body: "Marcas compram tese, não promessa. Sem media kit estratégico, não há proposta para apresentar." },
-  { icon: BarChart3, title: "É difícil transformar audiência em negócio.", body: "Engajamento alto não paga conta. Falta funil, oferta e posicionamento comercial." },
-  { icon: TrendingDown, title: "As métricas só aparecem depois que já investi muito.", body: "Quando o churn aparece, você já queimou meses de produção, edição e branding." },
+  {
+    icon: Target,
+    title: "Não sei se meu podcast tem diferencial.",
+    body: "Você está prestes a entrar em um mercado com milhares de shows. Sem clareza de proposta, vira ruído.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Tenho medo de entrar num nicho saturado.",
+    body: "Nichos lotados exigem ângulo único e budget de mídia que a maioria não tem.",
+  },
+  {
+    icon: DollarSign,
+    title: "Não sei como monetizar.",
+    body: "Audiência sem modelo comercial é hobby. Receita exige arquitetura desde o dia zero.",
+  },
+  {
+    icon: Sparkles,
+    title: "Não sei como conseguir patrocinadores.",
+    body: "Marcas compram tese, não promessa. Sem media kit estratégico, não há proposta para apresentar.",
+  },
+  {
+    icon: BarChart3,
+    title: "É difícil transformar audiência em negócio.",
+    body: "Engajamento alto não paga conta. Falta funil, oferta e posicionamento comercial.",
+  },
+  {
+    icon: TrendingDown,
+    title: "As métricas só aparecem depois que já investi muito.",
+    body: "Quando o churn aparece, você já queimou meses de produção, edição e branding.",
+  },
 ];
 
 const steps = [
-  { icon: Search, title: "Descreva sua ideia", body: "Tema, formato, público e objetivo. Em até 700 caracteres." },
-  { icon: Brain, title: "A IA analisa o mercado", body: "Saturação, diferenciação, retenção, crescimento e monetização — em paralelo." },
-  { icon: FileCheck, title: "Receba um diagnóstico estratégico", body: "Score executivo, riscos, oportunidades, sugestões de patrocínio e roadmap." },
+  {
+    icon: Search,
+    title: "Descreva sua ideia",
+    body: "Tema, formato, público e objetivo. Em até 700 caracteres.",
+  },
+  {
+    icon: Brain,
+    title: "A IA analisa o mercado",
+    body: "Saturação, diferenciação, retenção, crescimento e monetização — em paralelo.",
+  },
+  {
+    icon: FileCheck,
+    title: "Receba um diagnóstico estratégico",
+    body: "Score executivo, riscos, oportunidades, sugestões de patrocínio e roadmap.",
+  },
 ];
 
 function Index() {
@@ -61,9 +96,15 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Logo className="h-8" />
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <a href="#problemas" className="hover:text-foreground transition">Problemas</a>
-            <a href="#como-funciona" className="hover:text-foreground transition">Como funciona</a>
-            <a href="#diferencial" className="hover:text-foreground transition">Diferencial</a>
+            <a href="#problemas" className="hover:text-foreground transition">
+              Problemas
+            </a>
+            <a href="#como-funciona" className="hover:text-foreground transition">
+              Como funciona
+            </a>
+            <a href="#diferencial" className="hover:text-foreground transition">
+              Diferencial
+            </a>
           </nav>
           <Link
             to="/app/podcast-agent"
@@ -93,8 +134,8 @@ function Index() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-display text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight"
             >
-              Valide seu podcast{" "}
-              <span className="text-gradient-brand">antes de investir</span> meses produzindo.
+              Valide seu podcast <span className="text-gradient-brand">antes de investir</span>{" "}
+              meses produzindo.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 12 }}
@@ -102,7 +143,8 @@ function Index() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed"
             >
-              Descubra potencial de audiência, monetização, posicionamento e oportunidades estratégicas antes de lançar seu podcast.
+              Descubra potencial de audiência, monetização, posicionamento e oportunidades
+              estratégicas antes de lançar seu podcast.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -148,7 +190,9 @@ function Index() {
       <section id="problemas" className="py-24 border-t border-border/60">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-2xl mb-14">
-            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">Realidade do mercado</p>
+            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">
+              Realidade do mercado
+            </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
               Por que 90% dos podcasts param em poucos episódios.
             </h2>
@@ -182,7 +226,9 @@ function Index() {
       <section id="como-funciona" className="py-24 border-t border-border/60 bg-surface/30">
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-2xl mb-14">
-            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">Como funciona</p>
+            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">
+              Como funciona
+            </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
               Diagnóstico executivo em 3 etapas.
             </h2>
@@ -206,12 +252,17 @@ function Index() {
       <section id="diferencial" className="py-24 border-t border-border/60">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
           <div>
-            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">Diferencial</p>
+            <p className="text-xs uppercase tracking-widest text-primary/90 font-semibold mb-3">
+              Diferencial
+            </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-              Não é só análise de conteúdo. É análise de <span className="text-gradient-brand">negócio de mídia</span>.
+              Não é só análise de conteúdo. É análise de{" "}
+              <span className="text-gradient-brand">negócio de mídia</span>.
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
-              A VTR Gestão IA pensa simultaneamente como creator, como mídia, como audiência e como patrocinador. O resultado é uma tese executiva que você pode levar para investidores, marcas e parceiros.
+              A VTR Gestão IA pensa simultaneamente como creator, como mídia, como audiência e como
+              patrocinador. O resultado é uma tese executiva que você pode levar para investidores,
+              marcas e parceiros.
             </p>
             <ul className="mt-7 space-y-3">
               {[
