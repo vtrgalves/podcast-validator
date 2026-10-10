@@ -98,7 +98,7 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
                     type="button"
                     aria-label={`Excluir conversa ${t.title}`}
                     onClick={() => remove.mutate(t.id)}
-                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -130,7 +130,7 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
           <Link to="/">
             <Logo />
           </Link>
-          <Button size="sm" className="ml-auto" onClick={() => create.mutate()}>
+          <Button size="sm" className="ml-auto" onClick={() => create.mutate()} aria-label="Nova conversa">
             <MessageSquarePlus className="h-4 w-4" />
           </Button>
         </div>
