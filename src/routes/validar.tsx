@@ -186,9 +186,9 @@ function ValidarPage() {
               <Input id="audience" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="empreendedores, devs, creators…" className="mt-2 bg-input/60" />
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label className="text-sm font-semibold">Objetivo principal</Label>
+              <Label htmlFor="objective" className="text-sm font-semibold">Objetivo principal</Label>
               <Select value={objective} onValueChange={setObjective}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger id="objective" className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {["audiência", "autoridade", "monetização", "comunidade", "vendas", "networking"].map((o) => (
                     <SelectItem key={o} value={o}>{o}</SelectItem>
@@ -197,9 +197,9 @@ function ValidarPage() {
               </Select>
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
-              <Label className="text-sm font-semibold">Formato</Label>
+              <Label htmlFor="format" className="text-sm font-semibold">Formato</Label>
               <Select value={format} onValueChange={setFormat}>
-                <SelectTrigger className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger id="format" className="mt-2 bg-input/60"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {["entrevista", "solo", "mesa redonda", "storytelling", "videocast"].map((o) => (
                     <SelectItem key={o} value={o}>{o}</SelectItem>
@@ -210,13 +210,14 @@ function ValidarPage() {
           </div>
 
           <div className="rounded-2xl border border-border border-dashed bg-card/60 p-6">
-            <Label className="text-sm font-semibold flex items-center gap-2">
+            <Label htmlFor="attachments-upload" className="text-sm font-semibold flex items-center gap-2">
               <Upload className="h-4 w-4" /> Anexos opcionais
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
               Roteiro piloto, media kit, pitch comercial, identidade visual. PDF, DOCX, PPTX ou TXT. Máx 10MB cada, até 3 arquivos.
             </p>
             <input
+              id="attachments-upload"
               type="file"
               multiple
               accept=".pdf,.txt,.docx,.pptx"
@@ -229,7 +230,12 @@ function ValidarPage() {
                 {files.map((f) => (
                   <li key={f.path} className="flex items-center justify-between rounded-md bg-surface-elevated px-3 py-2 text-xs">
                     <span className="truncate">{f.name}</span>
-                    <button type="button" onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))} className="text-muted-foreground hover:text-destructive">
+                    <button
+                      type="button"
+                      aria-label={`Remover anexo ${f.name}`}
+                      onClick={() => setFiles((p) => p.filter((x) => x.path !== f.path))}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </li>
