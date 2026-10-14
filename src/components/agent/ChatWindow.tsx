@@ -246,6 +246,7 @@ export function ChatWindow({
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              aria-label="Mensagem para o assistente de estratégia de podcast"
               placeholder="Pergunte sobre estratégia, monetização, patrocínio ou valide uma ideia de podcast…"
             />
             <PromptInputFooter className="justify-end">
