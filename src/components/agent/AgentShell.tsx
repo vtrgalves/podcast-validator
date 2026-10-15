@@ -97,8 +97,9 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
                   <button
                     type="button"
                     aria-label={`Excluir conversa ${t.title}`}
+                    title="Excluir conversa"
                     onClick={() => remove.mutate(t.id)}
-                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
