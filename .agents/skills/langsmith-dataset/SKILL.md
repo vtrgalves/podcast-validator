@@ -17,6 +17,7 @@ LANGSMITH_WORKSPACE_ID=your-workspace-id              # Optional: for org-scoped
 ```
 
 Authentication is REQUIRED: either set the `LANGSMITH_API_KEY` environment variable, or pass the `--api-key` flag to CLI commands (preferred):
+
 ```bash
 langsmith dataset list --api-key $LANGSMITH_API_KEY
 ```
@@ -24,11 +25,13 @@ langsmith dataset list --api-key $LANGSMITH_API_KEY
 **IMPORTANT:** Always check the environment variables or `.env` file for `LANGSMITH_PROJECT` before querying or interacting with LangSmith. This tells you which project contains the relevant traces and data. If the LangSmith project is not available, use your best judgement to identify the right one.
 
 Python Dependencies
+
 ```bash
 pip install langsmith
 ```
 
 JavaScript Dependencies
+
 ```bash
 npm install langsmith
 ```
@@ -38,6 +41,7 @@ CLI Tool
 ```bash
 curl -sSL https://raw.githubusercontent.com/langchain-ai/langsmith-cli/main/scripts/install.sh | sh
 ```
+
 </setup>
 
 <cli_feedback>
@@ -87,6 +91,7 @@ Use the `langsmith` CLI to manage datasets and examples.
 - `--yes` - Skip confirmation prompts (use with caution)
 
 **IMPORTANT - Safety Prompts:**
+
 - The CLI prompts for confirmation before destructive operations (delete, overwrite)
 - **If you are running with user input:** ALWAYS wait for user input; NEVER use `--yes` unless the user explicitly requests it
 - **If you are running non-interactively:** Use `--yes` to skip confirmation prompts
@@ -99,9 +104,10 @@ Common evaluation dataset types:
 - **single_step** - Single node inputs/outputs. Tests specific node behavior (e.g., one LLM call or tool).
 - **trajectory** - Tool call sequence. Tests execution path (ordered list of tool names).
 - **rag** - Question/chunks/answer/citations. Tests retrieval quality.
-</dataset_types_overview>
+  </dataset_types_overview>
 
 <creating_datasets>
+
 ## Creating Datasets
 
 Datasets are JSON files with an array of examples. Each example has `inputs` and `outputs`.
@@ -124,21 +130,24 @@ from langsmith import Client
 client = Client()
 
 # 2. Process traces into dataset examples
+
 examples = []
 for jsonl_file in Path("./traces").glob("*.jsonl"):
-    runs = [json.loads(line) for line in jsonl_file.read_text().strip().split("\n")]
-    root = next((r for r in runs if r.get("parent_run_id") is None), None)
-    if root and root.get("inputs") and root.get("outputs"):
-        examples.append({
-            "trace_id": root.get("trace_id"),
-            "inputs": root["inputs"],
-            "outputs": root["outputs"]
-        })
+runs = [json.loads(line) for line in jsonl_file.read_text().strip().split("\n")]
+root = next((r for r in runs if r.get("parent_run_id") is None), None)
+if root and root.get("inputs") and root.get("outputs"):
+examples.append({
+"trace_id": root.get("trace_id"),
+"inputs": root["inputs"],
+"outputs": root["outputs"]
+})
 
 # 3. Save locally
+
 with open("/tmp/dataset.json", "w") as f:
-    json.dump(examples, f, indent=2)
-```
+json.dump(examples, f, indent=2)
+
+````
 </python>
 
 <typescript>
@@ -164,7 +173,8 @@ for (const file of files) {
 
 // 3. Save locally
 writeFileSync("/tmp/dataset.json", JSON.stringify(examples, null, 2));
-```
+````
+
 </typescript>
 
 ### Upload to LangSmith
@@ -183,18 +193,22 @@ from langsmith import Client
 client = Client()
 
 # Create dataset and add examples in one step
+
 dataset = client.create_dataset("My Dataset", description="Evaluation dataset")
 
 # Pass examples as a list of dicts. The parallel `inputs=`/`outputs=` lists
+
 # are still accepted but only as legacy keyword arguments.
+
 client.create_examples(
-    dataset_id=dataset.id,
-    examples=[
-        {"inputs": {"query": "What is AI?"}, "outputs": {"answer": "AI is..."}},
-        {"inputs": {"query": "Explain RAG"}, "outputs": {"answer": "RAG is..."}},
-    ],
+dataset_id=dataset.id,
+examples=[
+{"inputs": {"query": "What is AI?"}, "outputs": {"answer": "AI is..."}},
+{"inputs": {"query": "Explain RAG"}, "outputs": {"answer": "RAG is..."}},
+],
 )
-```
+
+````
 </python>
 
 <typescript>
@@ -222,35 +236,55 @@ await client.createExamples([
     dataset_id: dataset.id,
   },
 ]);
-```
+````
+
 </typescript>
 </creating_datasets>
 
 <dataset_structures>
+
 ## Dataset Structures by Type
 
 ### Final Response
+
 ```json
-{"trace_id": "...", "inputs": {"query": "What are the top genres?"}, "outputs": {"response": "The top genres are..."}}
+{
+  "trace_id": "...",
+  "inputs": { "query": "What are the top genres?" },
+  "outputs": { "response": "The top genres are..." }
+}
 ```
 
 ### Single Step
+
 ```json
 {"trace_id": "...", "inputs": {"messages": [...]}, "outputs": {"content": "..."}, "metadata": {"node_name": "model"}}
 ```
 
 ### Trajectory
+
 ```json
-{"trace_id": "...", "inputs": {"query": "..."}, "outputs": {"expected_trajectory": ["tool_a", "tool_b", "tool_c"]}}
+{
+  "trace_id": "...",
+  "inputs": { "query": "..." },
+  "outputs": { "expected_trajectory": ["tool_a", "tool_b", "tool_c"] }
+}
 ```
 
 ### RAG
+
 ```json
-{"trace_id": "...", "inputs": {"question": "How do I..."}, "outputs": {"answer": "...", "retrieved_chunks": ["..."], "cited_chunks": ["..."]}}
+{
+  "trace_id": "...",
+  "inputs": { "question": "How do I..." },
+  "outputs": { "answer": "...", "retrieved_chunks": ["..."], "cited_chunks": ["..."] }
+}
 ```
+
 </dataset_structures>
 
 <script_usage>
+
 ## CLI Usage
 
 ```bash
@@ -284,6 +318,7 @@ langsmith example create --dataset "My Dataset" \
 langsmith experiment list --dataset "My Dataset" --api-key $LANGSMITH_API_KEY
 langsmith experiment get "eval-v1" --api-key $LANGSMITH_API_KEY
 ```
+
 </script_usage>
 
 <example_workflow>
@@ -308,6 +343,7 @@ langsmith example list --dataset "Skills: Final Response" --limit 3 --api-key $L
 # 5. Run experiments
 langsmith experiment list --dataset "Skills: Final Response" --api-key $LANGSMITH_API_KEY
 ```
+
 </example_workflow>
 
 <troubleshooting>
@@ -317,15 +353,19 @@ langsmith experiment list --dataset "Skills: Final Response" --api-key $LANGSMIT
 - Dataset name must be unique, or delete existing first with `langsmith dataset delete`
 
 **Empty dataset after upload:**
+
 - Verify JSON file contains an array of objects with `inputs` key
 - Check file isn't empty: `langsmith example list --dataset "Name"`
 
 **Export has no data:**
+
 - Ensure traces were exported with `--full` flag to include inputs/outputs
 - Verify traces have both `inputs` and `outputs` populated
 
 **Example count mismatch:**
+
 - Use `langsmith dataset get "Name"` to check remote count
 - Compare with local file to verify upload completeness
 </troubleshooting>
+
 </output>

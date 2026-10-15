@@ -142,9 +142,14 @@ export async function ensureBucket(cfg: OciConfig) {
   const head = await ociRequest(cfg, "GET", `${nsPath}${encodeURIComponent(cfg.bucket)}`);
   if (head.ok) return { created: false };
   const body = new TextEncoder().encode(
-    JSON.stringify({ name: cfg.bucket, compartmentId: cfg.tenancy, publicAccessType: "NoPublicAccess" }),
+    JSON.stringify({
+      name: cfg.bucket,
+      compartmentId: cfg.tenancy,
+      publicAccessType: "NoPublicAccess",
+    }),
   );
   const res = await ociRequest(cfg, "POST", nsPath, body, "application/json");
-  if (!res.ok) throw new Error(`OCI createBucket ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  if (!res.ok)
+    throw new Error(`OCI createBucket ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return { created: true };
 }
