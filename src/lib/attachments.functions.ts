@@ -16,7 +16,10 @@ export const ALLOWED_ATTACHMENT_TYPES: Record<string, string[]> = {
 const input = z.object({
   fileName: z.string().trim().min(1).max(180),
   contentType: z.string().trim().max(160),
-  dataBase64: z.string().min(1).max(Math.ceil(MAX_ATTACHMENT_BYTES * 1.4)),
+  dataBase64: z
+    .string()
+    .min(1)
+    .max(Math.ceil(MAX_ATTACHMENT_BYTES * 1.4)),
 });
 
 function sanitizeFileName(name: string): string {
@@ -54,7 +57,8 @@ export const uploadAttachment = createServerFn({ method: "POST" })
     const binary = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
     if (binary.byteLength === 0) throw new Error("Arquivo vazio.");
     if (binary.byteLength > MAX_ATTACHMENT_BYTES) throw new Error("Arquivo acima de 10MB.");
-    if (!magicBytesOk(type, binary)) throw new Error("Conteúdo do arquivo não corresponde ao formato.");
+    if (!magicBytesOk(type, binary))
+      throw new Error("Conteúdo do arquivo não corresponde ao formato.");
 
     const path = `${context.userId}/${crypto.randomUUID()}-${safeName}`;
     const { error } = await context.supabase.storage

@@ -13,11 +13,15 @@ export function ReportPreviewMock() {
       >
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Diagnóstico executivo</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              Diagnóstico executivo
+            </p>
             <p className="font-display text-lg font-semibold mt-1">Carreira em Tech BR</p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-display font-bold text-gradient-brand leading-none">82</div>
+            <div className="text-4xl font-display font-bold text-gradient-brand leading-none">
+              82
+            </div>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Score</p>
           </div>
         </div>
@@ -28,10 +32,30 @@ export function ReportPreviewMock() {
 
         <div className="space-y-3">
           {[
-            { icon: TrendingUp, label: "Potencial de Audiência", value: 88, color: "from-[oklch(0.72_0.19_155)] to-[oklch(0.62_0.22_305)]" },
-            { icon: Target, label: "Diferenciação", value: 76, color: "from-[oklch(0.62_0.22_305)] to-[oklch(0.70_0.20_340)]" },
-            { icon: DollarSign, label: "Monetização", value: 81, color: "from-[oklch(0.70_0.20_340)] to-[oklch(0.78_0.16_75)]" },
-            { icon: Sparkles, label: "Patrocinabilidade", value: 84, color: "from-[oklch(0.62_0.22_305)] to-[oklch(0.72_0.19_155)]" },
+            {
+              icon: TrendingUp,
+              label: "Potencial de Audiência",
+              value: 88,
+              color: "from-[oklch(0.72_0.19_155)] to-[oklch(0.62_0.22_305)]",
+            },
+            {
+              icon: Target,
+              label: "Diferenciação",
+              value: 76,
+              color: "from-[oklch(0.62_0.22_305)] to-[oklch(0.70_0.20_340)]",
+            },
+            {
+              icon: DollarSign,
+              label: "Monetização",
+              value: 81,
+              color: "from-[oklch(0.70_0.20_340)] to-[oklch(0.78_0.16_75)]",
+            },
+            {
+              icon: Sparkles,
+              label: "Patrocinabilidade",
+              value: 84,
+              color: "from-[oklch(0.62_0.22_305)] to-[oklch(0.72_0.19_155)]",
+            },
           ].map((m, i) => (
             <motion.div
               key={m.label}
@@ -63,7 +87,10 @@ export function ReportPreviewMock() {
           <p className="text-xs text-muted-foreground mb-2">Patrocinadores sugeridos</p>
           <div className="flex flex-wrap gap-1.5">
             {["SaaS B2B", "Fintechs", "Edtechs", "Creator Tools", "Carreira"].map((t) => (
-              <span key={t} className="text-[11px] px-2 py-1 rounded-md bg-surface-elevated border border-border/60 text-foreground/80">
+              <span
+                key={t}
+                className="text-[11px] px-2 py-1 rounded-md bg-surface-elevated border border-border/60 text-foreground/80"
+              >
                 {t}
               </span>
             ))}

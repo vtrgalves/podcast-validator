@@ -31,14 +31,15 @@ export const getKnowledgeBase = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("documents")
-      .select("id, title, author, category, doc_type, file_name, page_count, chunk_count, oci_object_name")
+      .select(
+        "id, title, author, category, doc_type, file_name, page_count, chunk_count, oci_object_name",
+      )
       .eq("status", "indexed")
       .order("title");
     if (error) throw new Error(error.message);
 
-    const { getOciConfig, missingOciEnv, listObjects } = await import(
-      "@/lib/oci/object-storage.server"
-    );
+    const { getOciConfig, missingOciEnv, listObjects } =
+      await import("@/lib/oci/object-storage.server");
     const cfg = getOciConfig();
     const oci: OciStatus = {
       configured: cfg !== null,
