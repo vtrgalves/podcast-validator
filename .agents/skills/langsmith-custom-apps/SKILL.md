@@ -57,12 +57,12 @@ langsmith apps init --help    # the --template error message lists the real temp
 
 The gaps below were observed on **v0.2.42** and may be closed in your build. Each one is written as a fallback: apply it only when the help output confirms the command is missing or the flag is rejected.
 
-| If the docs say | And the CLI disagrees | Then |
-| --- | --- | --- |
-| `langsmith apps pull APP_ID_OR_NAME` | the `apps` help lists no `pull` | fetch the source from the platform API (see `<pull_source>`) |
-| `--template blank` | `--template must be one of: …` | use a listed template; the error message is the current source of truth |
+| If the docs say                                           | And the CLI disagrees                              | Then                                                                           |
+| --------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `langsmith apps pull APP_ID_OR_NAME`                      | the `apps` help lists no `pull`                    | fetch the source from the platform API (see `<pull_source>`)                   |
+| `--template blank`                                        | `--template must be one of: …`                     | use a listed template; the error message is the current source of truth        |
 | init "scaffolds into a new directory named after the app" | `<dir> is not empty; pass --force to write anyway` | `mkdir my-app && cd my-app` first — init writes into the **current** directory |
-</check_the_cli_first>
+| </check_the_cli_first>                                    |
 
 <lifecycle>
 ```bash
@@ -100,8 +100,9 @@ The record also carries `name`, `entrypoint`, `current_version`, `scope`, `creat
 </pull_source>
 
 <replicate_across_workspaces>
+
 1. Pull the source into a fresh directory.
-2. **Delete `.langsmith/app.json`.** It links the directory to the source app id, so leaving it in place makes the next push *update the original app* instead of creating one in the target workspace. This is the single most damaging mistake in this workflow.
+2. **Delete `.langsmith/app.json`.** It links the directory to the source app id, so leaving it in place makes the next push _update the original app_ instead of creating one in the target workspace. This is the single most damaging mistake in this workflow.
 3. Push with the target workspace and a name:
 
 ```bash
@@ -109,13 +110,14 @@ langsmith apps push --name <name> --workspace <target-ws-uuid>
 ```
 
 4. Re-point anything workspace-specific in the app's config (deep-link workspace UUIDs, project ids, feedback keys) at the target workspace, then rebuild — see `<before_sharing_externally>` for why editing source alone is not enough.
-</replicate_across_workspaces>
+   </replicate_across_workspaces>
 
 <app_facts>
+
 - **Apps are workspace-scoped** (`"scope": "workspace"`). Someone outside the workspace cannot open the URL, so "share this app" always means shipping source, never a link.
 - **`is_enabled: false` is the normal state right after a push.** It is not a failed deploy — do not debug it as one.
 - Deleting is `langsmith apps delete <app-id-or-name> --yes`; it is not recoverable, so confirm the id against `apps list` first.
-</app_facts>
+  </app_facts>
 
 <verify_without_browser>
 You cannot click the app, and a bug in its data layer renders as a plausible empty state rather than an error. This loop is the highest-value habit in this skill.
@@ -143,6 +145,7 @@ Run `npx tsc --noEmit` and `npm run build` before every push; the build is what 
 </verify_without_browser>
 
 <query_gotchas>
+
 - `POST /api/v1/runs/query` caps `limit` at **100**. Page with `response.cursors.next`, impose your own hard page cap so a busy project cannot spin forever, and tell the reader in the UI when that cap truncated a scan.
 - `search(name, "x")` is **rejected** by the filter DSL. Verified working: `eq(name, "read_file")`, `or(eq(name,"a"), eq(name,"b"))`, `eq(run_type, "tool")`, `eq(is_root, true)`, `eq(status, "error")`, `gte(start_time, "<iso>")`, `has(tags, "prod")`.
 - Metadata equality is **two paired clauses**, not `eq(metadata.key, …)`:
@@ -155,7 +158,7 @@ and(eq(metadata_key, "ls_agent_purpose"), eq(metadata_value, "coding"))
 - Tool-call `inputs` arrive in **two shapes** depending on how the agent serializes them: `{"file_path": "/x"}` and `{"input": "{\"file_path\":\"/x\"}"}`. Parse the inner JSON inside a `try`/`catch` and handle both, or you will silently count a fraction of the data.
 - **Probe before assuming an endpoint exists.** Some things that feel like they must be queryable are not: there is no public endpoint listing an agent's skills or a Fleet roster. When no authoritative list exists, derive one from traces and state that limitation in the UI rather than implying completeness.
 - Treat everything read from a trace as untrusted: render names as text (never `dangerouslySetInnerHTML`), validate ids before they reach a filter string, and interpolate only allowlisted values into the DSL.
-</query_gotchas>
+  </query_gotchas>
 
 <design>
 The scaffold ships the LangSmith design tokens in `src/index.css` and `tailwind.config.js`. The sandbox sets `html.dark` from `metadata.mode` before every render, so token-based UIs theme for free with no branching — only branch on `metadata.mode` for inline styles, and re-check it every render since it can change without a remount.
@@ -172,4 +175,4 @@ Apps are workspace-scoped, so sharing means handing over source. Work from a sep
 - [ ] Replace internal-benchmark language with placeholders the recipient is meant to change, and keep only citations you can actually stand behind.
 - [ ] Check `package-lock.json` for private registry hosts or auth tokens.
 - [ ] Re-run `npx tsc --noEmit` and `npm run build`, then grep `dist/` again.
-</before_sharing_externally>
+      </before_sharing_externally>

@@ -64,7 +64,10 @@ function AuthPage() {
       if (!cancelled && data.session) goNext();
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
+      if (
+        session &&
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")
+      ) {
         goNext();
       }
     });
@@ -115,7 +118,6 @@ function AuthPage() {
     }
   }
 
-
   return (
     <main className="min-h-screen bg-background bg-hero flex flex-col items-center justify-center px-4 py-12">
       <Link to="/" className="mb-8">
@@ -129,12 +131,7 @@ function AuthPage() {
           Acesse o Podcast Strategy Agent e suas conversas estratégicas.
         </p>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="mt-6 w-full"
-          onClick={handleGoogle}
-        >
+        <Button type="button" variant="outline" className="mt-6 w-full" onClick={handleGoogle}>
           Continuar com Google
         </Button>
 
@@ -182,9 +179,7 @@ function AuthPage() {
           className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         >
-          {mode === "signin"
-            ? "Não tem conta? Criar agora"
-            : "Já tem conta? Fazer login"}
+          {mode === "signin" ? "Não tem conta? Criar agora" : "Já tem conta? Fazer login"}
         </button>
       </Card>
     </main>

@@ -60,10 +60,7 @@ function KnowledgePage() {
               <p className="text-sm text-muted-foreground">Nenhum documento indexado.</p>
             )}
             {docs.map((d) => (
-              <article
-                key={d.id}
-                className="rounded-xl border border-border/60 bg-surface/50 p-4"
-              >
+              <article key={d.id} className="rounded-xl border border-border/60 bg-surface/50 p-4">
                 <div className="flex items-start gap-3">
                   <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <div className="min-w-0 flex-1">
@@ -74,9 +71,7 @@ function KnowledgePage() {
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
                       <Badge variant="secondary">{d.category ?? "Documento"}</Badge>
                       <Badge variant="secondary">{d.docType.toUpperCase()}</Badge>
-                      <Badge variant="secondary">
-                        {d.pageCount ?? "—"} páginas
-                      </Badge>
+                      <Badge variant="secondary">{d.pageCount ?? "—"} páginas</Badge>
                       <Badge variant="secondary">{d.chunkCount} trechos</Badge>
                       <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 px-2 py-0.5 text-primary">
                         <CheckCircle2 className="h-3 w-3" /> Indexado

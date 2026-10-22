@@ -4,15 +4,16 @@ Best practices for designing LangSmith online evaluators. One quality dimension 
 
 ## LLM-as-judge vs code: decision framework
 
-| Factor | LLM-as-judge | Code evaluator |
-|---|---|---|
-| **Use when** | Success is subjective or semantic | Success is objective or deterministic |
-| **Examples** | Relevance, helpfulness, safety, tone, factual grounding | Output exists, format validation, length thresholds, JSON structure, keyword presence |
-| **Speed** | Slower (LLM inference per trace) | Fast (direct execution) |
-| **Cost** | LLM token cost per evaluation | No additional cost |
-| **Determinism** | Non-deterministic; may vary across runs | Fully deterministic |
+| Factor          | LLM-as-judge                                            | Code evaluator                                                                        |
+| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Use when**    | Success is subjective or semantic                       | Success is objective or deterministic                                                 |
+| **Examples**    | Relevance, helpfulness, safety, tone, factual grounding | Output exists, format validation, length thresholds, JSON structure, keyword presence |
+| **Speed**       | Slower (LLM inference per trace)                        | Fast (direct execution)                                                               |
+| **Cost**        | LLM token cost per evaluation                           | No additional cost                                                                    |
+| **Determinism** | Non-deterministic; may vary across runs                 | Fully deterministic                                                                   |
 
 **Rules of thumb:**
+
 - If you can write a Python expression that decides pass/fail, use code.
 - If a human would need to read and reason about the output, use an LLM judge.
 - When in doubt, start with an LLM judge -- you can always replace it with code later if the criterion turns out to be fully decidable.
@@ -46,6 +47,7 @@ Bad: "Does the response match the expected answer?" (there is no expected answer
 Each evaluator should measure exactly one quality dimension. Combining multiple criteria (e.g., relevance AND tone AND safety) in a single evaluator makes scores uninterpretable and harder to debug.
 
 Create separate evaluators for separate concerns:
+
 - `relevance-evaluator` -- Does the response address the question?
 - `safety-evaluator` -- Is the response free of harmful content?
 - `tone-evaluator` -- Is the tone appropriate for the context?
@@ -92,6 +94,7 @@ before depending on one.
 
 Each key in the returned feedback mapping appears as a score name in LangSmith.
 Use descriptive, lowercase, underscore-separated names:
+
 - `"has_output"` -- not `"check1"`
 - `"response_length"` -- not `"len"`
 - `"contains_greeting"` -- not `"g"`
@@ -111,17 +114,17 @@ return {"valid_json": True, "required_fields": 0.8}
 
 ## Anti-patterns
 
-| Anti-pattern | Problem | Fix |
-|---|---|---|
-| Guessing field names | Evaluator silently gets empty data | Inspect traces first |
-| Using `run.inputs` (attribute access) | `AttributeError` -- `run` is a dict | Use `run.get("inputs")` |
-| Dataset-style `perform_eval(run, example)` used online | Online runtime supplies one run | Use `perform_eval(run)` |
-| Multiple criteria in one evaluator | Ambiguous scores | One quality per evaluator |
-| Scoring against a reference answer | No reference exists in online eval | Score against a rubric |
-| Network calls or unsupported imports | Runtime error | Use offline logic and the documented package allowlist |
-| Ignoring `None` outputs | Crash on errored runs | Check `run.get("outputs") is None` |
-| Generic score names (`"score"`, `"result"`) | Indistinguishable in UI | Use descriptive keys |
-| Reasoning after score | LLM rationalizes instead of reasons | Put `reasoning` field first |
+| Anti-pattern                                           | Problem                             | Fix                                                    |
+| ------------------------------------------------------ | ----------------------------------- | ------------------------------------------------------ |
+| Guessing field names                                   | Evaluator silently gets empty data  | Inspect traces first                                   |
+| Using `run.inputs` (attribute access)                  | `AttributeError` -- `run` is a dict | Use `run.get("inputs")`                                |
+| Dataset-style `perform_eval(run, example)` used online | Online runtime supplies one run     | Use `perform_eval(run)`                                |
+| Multiple criteria in one evaluator                     | Ambiguous scores                    | One quality per evaluator                              |
+| Scoring against a reference answer                     | No reference exists in online eval  | Score against a rubric                                 |
+| Network calls or unsupported imports                   | Runtime error                       | Use offline logic and the documented package allowlist |
+| Ignoring `None` outputs                                | Crash on errored runs               | Check `run.get("outputs") is None`                     |
+| Generic score names (`"score"`, `"result"`)            | Indistinguishable in UI             | Use descriptive keys                                   |
+| Reasoning after score                                  | LLM rationalizes instead of reasons | Put `reasoning` field first                            |
 
 ## Mental verification checklist
 
