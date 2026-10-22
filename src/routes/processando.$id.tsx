@@ -36,7 +36,10 @@ function ProcessandoPage() {
 
   useEffect(() => {
     const msgT = setInterval(() => setMsgIdx((i) => (i + 1) % MESSAGES.length), 1800);
-    const progT = setInterval(() => setProgress((p) => Math.min(p + 2 + Math.random() * 4, 92)), 600);
+    const progT = setInterval(
+      () => setProgress((p) => Math.min(p + 2 + Math.random() * 4, 92)),
+      600,
+    );
     return () => {
       clearInterval(msgT);
       clearInterval(progT);
@@ -57,13 +60,17 @@ function ProcessandoPage() {
         toast.error(e?.message ?? "Falha ao gerar diagnóstico");
         setTimeout(() => navigate({ to: "/validar" }), 1200);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [id, run, navigate]);
 
   return (
     <div className="min-h-screen bg-background bg-hero flex flex-col">
       <header className="border-b border-border/60 px-6 py-4">
-        <div className="max-w-5xl mx-auto"><Logo className="h-8" /></div>
+        <div className="max-w-5xl mx-auto">
+          <Logo className="h-8" />
+        </div>
       </header>
 
       <main className="flex-1 flex items-center justify-center px-6">
@@ -90,7 +97,9 @@ function ProcessandoPage() {
             </div>
           </div>
 
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Diagnóstico em andamento</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            Diagnóstico em andamento
+          </p>
           <AnimatePresence mode="wait">
             <motion.h2
               key={msgIdx}
