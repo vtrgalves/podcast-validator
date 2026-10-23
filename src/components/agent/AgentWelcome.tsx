@@ -40,13 +40,13 @@ export function AgentWelcome({ onPick }: { onPick: (prompt: string) => void }) {
       </p>
 
       <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-3 py-1 text-xs text-primary">
-        <BookOpen className="h-3.5 w-3.5" />
+        <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
         Respostas fundamentadas na Base de Conhecimento VTR Gestão.
       </p>
 
       <Link
         to="/app/base-conhecimento"
-        className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-2"
       >
         Ver Base de Conhecimento
       </Link>
@@ -56,10 +56,14 @@ export function AgentWelcome({ onPick }: { onPick: (prompt: string) => void }) {
           <button
             key={s.prompt}
             type="button"
+            aria-label={`Usar sugestão: ${s.prompt}`}
             onClick={() => onPick(s.prompt)}
-            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-surface/60 p-4 text-left transition-colors hover:border-primary/50 hover:bg-surface-elevated"
+            className="group flex items-start gap-3 rounded-xl border border-border/60 bg-surface/60 p-4 text-left transition-colors hover:border-primary/50 hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-1"
           >
-            <s.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <s.icon
+              className="mt-0.5 h-4 w-4 shrink-0 text-primary transition-transform group-hover:scale-110"
+              aria-hidden="true"
+            />
             <span className="text-sm font-medium">{s.prompt}</span>
           </button>
         ))}
