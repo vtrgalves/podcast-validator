@@ -53,7 +53,6 @@ export const Route = createFileRoute("/api/public/index-knowledge")({
           documents = JSON.parse(raw) as IncomingDoc[];
         }
 
-
         const supabase = adminClient();
         const report: Array<Record<string, unknown>> = [];
 
