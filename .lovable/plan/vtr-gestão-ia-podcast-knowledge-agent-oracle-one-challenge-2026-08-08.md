@@ -34,14 +34,14 @@ resposta (texto + fontes citadas) -> Frontend -> usuário
 
 ## 2. O que efetivamente roda na OCI
 
-| Componente | Onde roda | Papel |
-|---|---|---|
-| UI, rotas, sidebar de threads | Lovable | apresentação |
-| Proxy `/api/chat` | Lovable | encaminha a chamada; não decide nada |
-| **Orquestração do agente, RAG, prompt, chamada ao LLM** | **OCI Function** | **núcleo executável na Oracle** |
-| Endpoint público HTTPS + CORS + rate limit | **OCI API Gateway** | exposição da Function |
-| Documentos originais (PDF/DOCX/XLSX/PPTX/...) | **OCI Object Storage** | acervo da Base de Conhecimento |
-| Threads, mensagens, chunks, embeddings, diagnósticos | Lovable Cloud (Postgres + pgvector) | persistência |
+| Componente                                              | Onde roda                           | Papel                                |
+| ------------------------------------------------------- | ----------------------------------- | ------------------------------------ |
+| UI, rotas, sidebar de threads                           | Lovable                             | apresentação                         |
+| Proxy `/api/chat`                                       | Lovable                             | encaminha a chamada; não decide nada |
+| **Orquestração do agente, RAG, prompt, chamada ao LLM** | **OCI Function**                    | **núcleo executável na Oracle**      |
+| Endpoint público HTTPS + CORS + rate limit              | **OCI API Gateway**                 | exposição da Function                |
+| Documentos originais (PDF/DOCX/XLSX/PPTX/...)           | **OCI Object Storage**              | acervo da Base de Conhecimento       |
+| Threads, mensagens, chunks, embeddings, diagnósticos    | Lovable Cloud (Postgres + pgvector) | persistência                         |
 
 Demonstrável: derrubar/renomear a Function faz o agente parar de responder — prova de que a execução está na Oracle.
 
@@ -93,32 +93,32 @@ O validador não vira uma página isolada: torna-se uma **skill** do agente, aci
 
 ## 8. As 10 fases (atualizadas)
 
-| Fase | Entrega |
-|---|---|
-| 1 | Auth (email + Google), tabelas `threads`/`messages`, chat em `/app/podcast-agent` com sidebar de threads, streaming, boas-vindas com 6 sugestões; CTA da landing → "Validar meu Podcast com IA" |
-| 2 | Validador como skill conversacional do agente (tool call, uma pergunta por vez) |
-| 3 | `/app/base-conhecimento`: upload, categorias, status, acervo compartilhado |
-| 4 | Pipeline de extração + chunking por formato (PDF, DOCX, XLSX, PPTX, CSV, JSON, MD, HTML) |
-| 5 | Embeddings (`EMBEDDING_MODEL`), pgvector, busca semântica, citações, regra anti-alucinação |
-| 6 | **OCI**: bucket Object Storage para documentos; **OCI Function** hospedando o backend do agente; **API Gateway** para endpoint HTTPS público; integração só por variáveis de ambiente; nenhuma credencial Oracle no frontend; fluxo completo da chamada documentado |
-| 7 | Card de Diagnóstico no chat (score 0–100, 8 dimensões, GO / GO COM AJUSTES / VALIDAR MAIS / NO-GO) |
-| 8 | "Explorar Monetização" e "Mapa de Oportunidades" + apoio a negociação comercial |
-| 9 | **README**: arquitetura completa, indicação clara dos serviços OCI usados, instruções de configuração OCI, screenshots dos recursos Oracle, variáveis necessárias, demonstração do fluxo |
-| 10 | **Deploy**, com critério de conclusão: agente acessível por URL pública; backend/agente executando na OCI; chamada real Frontend → OCI → IA; screenshot ou vídeo no README; repositório GitHub público; evidência do Object Storage; evidência da Function/Container em execução |
+| Fase | Entrega                                                                                                                                                                                                                                                                          |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Auth (email + Google), tabelas `threads`/`messages`, chat em `/app/podcast-agent` com sidebar de threads, streaming, boas-vindas com 6 sugestões; CTA da landing → "Validar meu Podcast com IA"                                                                                  |
+| 2    | Validador como skill conversacional do agente (tool call, uma pergunta por vez)                                                                                                                                                                                                  |
+| 3    | `/app/base-conhecimento`: upload, categorias, status, acervo compartilhado                                                                                                                                                                                                       |
+| 4    | Pipeline de extração + chunking por formato (PDF, DOCX, XLSX, PPTX, CSV, JSON, MD, HTML)                                                                                                                                                                                         |
+| 5    | Embeddings (`EMBEDDING_MODEL`), pgvector, busca semântica, citações, regra anti-alucinação                                                                                                                                                                                       |
+| 6    | **OCI**: bucket Object Storage para documentos; **OCI Function** hospedando o backend do agente; **API Gateway** para endpoint HTTPS público; integração só por variáveis de ambiente; nenhuma credencial Oracle no frontend; fluxo completo da chamada documentado              |
+| 7    | Card de Diagnóstico no chat (score 0–100, 8 dimensões, GO / GO COM AJUSTES / VALIDAR MAIS / NO-GO)                                                                                                                                                                               |
+| 8    | "Explorar Monetização" e "Mapa de Oportunidades" + apoio a negociação comercial                                                                                                                                                                                                  |
+| 9    | **README**: arquitetura completa, indicação clara dos serviços OCI usados, instruções de configuração OCI, screenshots dos recursos Oracle, variáveis necessárias, demonstração do fluxo                                                                                         |
+| 10   | **Deploy**, com critério de conclusão: agente acessível por URL pública; backend/agente executando na OCI; chamada real Frontend → OCI → IA; screenshot ou vídeo no README; repositório GitHub público; evidência do Object Storage; evidência da Function/Container em execução |
 
 Fases 1–5 já são construídas com o agente isolado em um módulo portável, para que a Fase 6 seja um empacotamento — não uma reescrita.
 
 ## 9. Dependências e riscos adicionais
 
-| Risco | Mitigação |
-|---|---|
+| Risco                                                         | Mitigação                                                                                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Deploy de OCI Function exige `oci-cli`/Docker fora do Lovable | Entrego o diretório da Function (`func.yaml`, Dockerfile, código) + passo a passo; o deploy final é executado por você na sua tenancy |
-| Cold start da Function (segundos) | Imagem enxuta, dependências mínimas, mensagem de "conectando ao agente" na UI |
-| Function precisa alcançar o Postgres | Uso da connection string pooled sobre TLS; policies de rede documentadas |
-| Latência extra Lovable → Oracle → LLM | Streaming ponta a ponta e top-k reduzido |
-| Parsers de documento Node-only no runtime edge | Ingestão passa a rodar também na Function (Node completo), removendo a limitação |
-| Chave OCI/segredos vazando | Tudo em env vars server-side ou OCI Vault; proxy nunca devolve segredo ao cliente |
-| Custos OCI | Functions e Object Storage têm Always Free tier; volume do MVP fica dentro dele |
+| Cold start da Function (segundos)                             | Imagem enxuta, dependências mínimas, mensagem de "conectando ao agente" na UI                                                         |
+| Function precisa alcançar o Postgres                          | Uso da connection string pooled sobre TLS; policies de rede documentadas                                                              |
+| Latência extra Lovable → Oracle → LLM                         | Streaming ponta a ponta e top-k reduzido                                                                                              |
+| Parsers de documento Node-only no runtime edge                | Ingestão passa a rodar também na Function (Node completo), removendo a limitação                                                      |
+| Chave OCI/segredos vazando                                    | Tudo em env vars server-side ou OCI Vault; proxy nunca devolve segredo ao cliente                                                     |
+| Custos OCI                                                    | Functions e Object Storage têm Always Free tier; volume do MVP fica dentro dele                                                       |
 
 ## 10. O que preciso de você (antes da Fase 6)
 

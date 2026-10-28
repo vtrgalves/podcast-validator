@@ -40,10 +40,10 @@ Regras aplicadas:
 
 ## Base de Conhecimento
 
-| Documento | Tipo |
-| --- | --- |
+| Documento                                                             | Tipo         |
+| --------------------------------------------------------------------- | ------------ |
 | Mapeamento de processos de Podcasting na estrutura de fomento público | Pesquisa MBA |
-| Como Levar a Sua Mensagem Além! | Ebook |
+| Como Levar a Sua Mensagem Além!                                       | Ebook        |
 
 Os arquivos originais estão armazenados no **Oracle Cloud Infrastructure Object Storage**.
 O texto é extraído por página, dividido em chunks com metadados e indexado como embeddings
@@ -116,7 +116,6 @@ flowchart TD
     OS --> BK[(Bucket vtr-podcast-knowledge)]
 ```
 
-
 ## Oracle Cloud Infrastructure — OCI
 
 O projeto usa **dois serviços reais da Oracle Cloud**: Compute (execução) e Object
@@ -134,8 +133,8 @@ Storage (documentos originais).
 - **Resiliência:** se o gateway estiver indisponível, o núcleo faz fallback local —
   o produto nunca quebra.
 - **Evidência no produto:** cada resposta exibe o selo
-  *“Execução via Oracle Cloud Infrastructure — oci-compute/vtr-agent-gateway ·
-  sa-saopaulo-1 · <latência> ms”*.
+  _“Execução via Oracle Cloud Infrastructure — oci-compute/vtr-agent-gateway ·
+  sa-saopaulo-1 · <latência> ms”_.
 
 > Observação técnica: OCI Functions + API Gateway exigem o OCI Registry (OCIR), que
 > retorna `FREE_TIER_NOT_SUPPORTED` nesta conta Always Free. A camada executável foi
@@ -159,7 +158,6 @@ O sistema:
   e metadados públicos dos objetos.
 
 A sincronização é **idempotente**: objetos já presentes não são reenviados.
-
 
 ## Tecnologias
 
@@ -229,15 +227,14 @@ Object Storage → `vtr-podcast-knowledge` → aba **Objects**.
 
 ## Requisitos do Challenge
 
-| Requisito | Implementação | Status |
-|---|---|---|
-| Agente de IA conversacional | Podcast Strategy Agent | ✅ |
-| Respostas fundamentadas em documentos | RAG + pgvector + citações | ✅ |
-| Base de Conhecimento documental | Pesquisa MBA + Ebook | ✅ |
-| Projeto disponível online | https://podcast-validator.lovable.app | ✅ |
-| Uso de Oracle Cloud Infrastructure | Object Storage + OCI Compute | ✅ |
-| Documentos armazenados na OCI | bucket `vtr-podcast-knowledge` | ✅ |
-| Execução envolvendo OCI | OCI Compute Gateway | ✅ |
-| Repositório público GitHub | https://github.com/vtrgalves/podcast-validator | ✅ |
-| Evidências no README | `docs/evidencias` | ✅ |
-
+| Requisito                             | Implementação                                  | Status |
+| ------------------------------------- | ---------------------------------------------- | ------ |
+| Agente de IA conversacional           | Podcast Strategy Agent                         | ✅     |
+| Respostas fundamentadas em documentos | RAG + pgvector + citações                      | ✅     |
+| Base de Conhecimento documental       | Pesquisa MBA + Ebook                           | ✅     |
+| Projeto disponível online             | https://podcast-validator.lovable.app          | ✅     |
+| Uso de Oracle Cloud Infrastructure    | Object Storage + OCI Compute                   | ✅     |
+| Documentos armazenados na OCI         | bucket `vtr-podcast-knowledge`                 | ✅     |
+| Execução envolvendo OCI               | OCI Compute Gateway                            | ✅     |
+| Repositório público GitHub            | https://github.com/vtrgalves/podcast-validator | ✅     |
+| Evidências no README                  | `docs/evidencias`                              | ✅     |

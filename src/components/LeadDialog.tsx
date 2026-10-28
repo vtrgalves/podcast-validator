@@ -16,7 +16,13 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createLead } from "@/lib/lead.functions";
 
-export function LeadDialog({ validationId, trigger }: { validationId: string; trigger: React.ReactNode }) {
+export function LeadDialog({
+  validationId,
+  trigger,
+}: {
+  validationId: string;
+  trigger: React.ReactNode;
+}) {
   const create = useServerFn(createLead);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -33,7 +39,15 @@ export function LeadDialog({ validationId, trigger }: { validationId: string; tr
     }
     setLoading(true);
     try {
-      await create({ data: { validationId, name: name.trim(), email: email.trim(), whatsapp: whatsapp.trim() || null, message: message.trim() || null } });
+      await create({
+        data: {
+          validationId,
+          name: name.trim(),
+          email: email.trim(),
+          whatsapp: whatsapp.trim() || null,
+          message: message.trim() || null,
+        },
+      });
       toast.success("Recebemos seu contato. Em breve falaremos com você.");
       setOpen(false);
     } catch (err) {
@@ -51,27 +65,56 @@ export function LeadDialog({ validationId, trigger }: { validationId: string; tr
         <DialogHeader>
           <DialogTitle className="font-display">Falar com a VTR Gestão</DialogTitle>
           <DialogDescription>
-            Vamos transformar este diagnóstico em estratégia, monetização e execução para o seu podcast.
+            Vamos transformar este diagnóstico em estratégia, monetização e execução para o seu
+            podcast.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div>
             <Label htmlFor="ln">Nome *</Label>
-            <Input id="ln" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5 bg-input/60" required />
+            <Input
+              id="ln"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1.5 bg-input/60"
+              required
+            />
           </div>
           <div>
             <Label htmlFor="le">Email *</Label>
-            <Input id="le" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 bg-input/60" required />
+            <Input
+              id="le"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1.5 bg-input/60"
+              required
+            />
           </div>
           <div>
             <Label htmlFor="lw">WhatsApp</Label>
-            <Input id="lw" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} className="mt-1.5 bg-input/60" placeholder="(11) 99999-9999" />
+            <Input
+              id="lw"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              className="mt-1.5 bg-input/60"
+              placeholder="(11) 99999-9999"
+            />
           </div>
           <div>
             <Label htmlFor="lm">Mensagem</Label>
-            <Textarea id="lm" value={message} onChange={(e) => setMessage(e.target.value)} className="mt-1.5 bg-input/60 min-h-[80px]" />
+            <Textarea
+              id="lm"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-1.5 bg-input/60 min-h-[80px]"
+            />
           </div>
-          <Button type="submit" disabled={loading} className="w-full bg-success text-success-foreground hover:bg-success/90">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-success text-success-foreground hover:bg-success/90"
+          >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enviar contato"}
           </Button>
         </form>
