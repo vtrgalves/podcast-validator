@@ -3,7 +3,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Check, Copy } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,13 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import {
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
 import {
   PromptInput,
   PromptInputTextarea,
@@ -50,11 +56,42 @@ function sourcesOf(message: UIMessage): AgentSource[] {
   return Array.isArray(meta?.sources) ? meta.sources : [];
 }
 
-type OciExecution = { gateway: string; region: string; latencyMs: number; invocation: number | null };
+type OciExecution = {
+  gateway: string;
+  region: string;
+  latencyMs: number;
+  invocation: number | null;
+};
 
 function executionOf(message: UIMessage): OciExecution | null {
   const meta = message.metadata as { execution?: OciExecution } | undefined;
   return meta?.execution ?? null;
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success("Resposta copiada para a área de transferência.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar a resposta.");
+    }
+  };
+
+  return (
+    <MessageAction
+      label={copied ? "Copiado!" : "Copiar resposta"}
+      onClick={handleCopy}
+      tooltip={copied ? "Copiado!" : "Copiar resposta"}
+    >
+      {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+    </MessageAction>
+  );
 }
 
 function OciBadge({ execution }: { execution: OciExecution | null }) {
@@ -68,7 +105,6 @@ function OciBadge({ execution }: { execution: OciExecution | null }) {
     </p>
   );
 }
-
 
 function pageLabel(s: AgentSource) {
   if (s.page == null) return "página não informada";
@@ -119,8 +155,6 @@ function SourceList({ sources }: { sources: AgentSource[] }) {
     </div>
   );
 }
-
-
 
 export function ChatWindow({
   threadId,
@@ -213,9 +247,11 @@ export function ChatWindow({
                   {message.role === "assistant" ? (
                     <>
                       <MessageResponse>{textOf(message)}</MessageResponse>
+                      <MessageActions className="mt-1">
+                        <CopyButton text={textOf(message)} />
+                      </MessageActions>
                       <SourceList sources={sourcesOf(message)} />
                       <OciBadge execution={executionOf(message)} />
-
                     </>
                   ) : (
                     <span className="whitespace-pre-wrap">{textOf(message)}</span>
