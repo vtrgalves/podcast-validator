@@ -1,9 +1,20 @@
 import { Link, useNavigate, useParams, useRouterState } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageSquarePlus, Trash2, LogOut, Home, MessagesSquare } from "lucide-react";
+import { MessageSquarePlus, Trash2, LogOut, Home, MessagesSquare, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { createThread, deleteThread, listThreads } from "@/lib/threads.functions";
@@ -28,11 +39,18 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
     onError: () => toast.error("Não foi possível criar a conversa"),
   });
 
+  const [threadToDelete, setThreadToDelete] = useState<{ id: string; title: string } | null>(null);
+
   const remove = useMutation({
     mutationFn: (id: string) => deleteThread({ data: { id } }),
     onSuccess: (_r, id) => {
       queryClient.invalidateQueries({ queryKey: ["threads"] });
+      toast.success("Conversa excluída");
+      setThreadToDelete(null);
       if (params.threadId === id) navigate({ to: "/app/podcast-agent" });
+    },
+    onError: () => {
+      toast.error("Não foi possível excluir a conversa");
     },
   });
 
@@ -67,9 +85,7 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
           <p className="px-2 pb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             Conversas
           </p>
-          {threads.isLoading && (
-            <p className="px-2 text-xs text-muted-foreground">Carregando…</p>
-          )}
+          {threads.isLoading && <p className="px-2 text-xs text-muted-foreground">Carregando…</p>}
           {threads.data?.length === 0 && (
             <p className="px-2 text-xs text-muted-foreground">
               Nenhuma conversa ainda. Comece uma nova.
@@ -97,8 +113,11 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
                   <button
                     type="button"
                     aria-label={`Excluir conversa ${t.title}`}
-                    onClick={() => remove.mutate(t.id)}
-                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setThreadToDelete({ id: t.id, title: t.title });
+                    }}
+                    className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring group-hover:opacity-100"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -136,6 +155,43 @@ export function AgentShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="min-h-0 flex-1">{children}</div>
       </main>
+
+      <AlertDialog
+        open={threadToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !remove.isPending) setThreadToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir conversa?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir &ldquo;{threadToDelete?.title}&rdquo;? Todo o histórico
+              e as análises desta conversa serão removidos definitivamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={remove.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (threadToDelete) remove.mutate(threadToDelete.id);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {remove.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo…
+                </>
+              ) : (
+                "Excluir conversa"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
